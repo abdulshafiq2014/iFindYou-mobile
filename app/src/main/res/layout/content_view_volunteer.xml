@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Person At Risk Id"
+            android:drawablePadding="8dp"
+            android:textSize="18sp"
+            android:id="@+id/Description"
+            android:gravity="center_vertical"
+            android:layout_marginTop="44dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/pid_text" />
+
+        <!--<TextView-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Person At Risk Id"-->
+        <!--android:drawablePadding="8dp"-->
+        <!--android:textSize="18sp"-->
+        <!--android:id="@+id/product_name"-->
+        <!--android:gravity="center_vertical"-->
+        <!--android:layout_marginTop="20dp"-->
+        <!--android:layout_marginLeft="5dp" />-->
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:id="@+id/pid_text"
+            android:inputType="textNoSuggestions"
+            android:fontFamily="normal"
+            android:hint=" Enter PID"
+            android:textColorHint="#BCBCBC"
+            android:imeOptions="actionDone"
+            android:singleLine="true"
+            android:lines="1"
+            android:focusable="true"
+            android:textColorHighlight="#ff7eff15"
+            android:background="@drawable/barbase"
+            android:paddingLeft="10dp"
+            android:drawablePadding="5dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:typeface="normal"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_below="@+id/Description"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="48dp" />
+
+
+        <Button
+            android:layout_width="50dp"
+            android:layout_height="45dp"
+            android:text="GET"
+            android:textAlignment="center"
+            android:id="@+id/getpid_button"
+            android:background="@color/colorPrimary"
+            android:layout_below="@+id/pid_text"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="37dp" />
+
+    </RelativeLayout>
+</RelativeLayout>
+
+
+
+

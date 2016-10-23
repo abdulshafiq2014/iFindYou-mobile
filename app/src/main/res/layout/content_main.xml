@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose User Type:"
+            android:drawablePadding="8dp"
+            android:textSize="25sp"
+            android:id="@+id/Description"
+            android:layout_marginTop="44dp"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/pid_text" />
+
+
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:text="CAREGIVER"
+            android:textAlignment="center"
+            android:id="@+id/caregiver_btn"
+            android:background="@color/colorAccent"
+            android:layout_below="@+id/Description"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="37dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:text="VOLUNTEER"
+            android:textAlignment="center"
+            android:id="@+id/volunteer_btn"
+            android:background="@color/colorPrimary"
+            android:layout_below="@+id/caregiver_btn"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="37dp" />
+
+
+    </RelativeLayout>
+</RelativeLayout>
+
+
+
+

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_view_details">ViewDetails</string>
+    <string name="title_activity_view_caregiver">ViewCaregiverActivity</string>
+    <string name="title_activity_view_volunteer">ViewVolunteerActivity</string>
+    <string name="title_activity_update_at_risk_information">UpdateAtRiskInformation</string>
+</resources>
