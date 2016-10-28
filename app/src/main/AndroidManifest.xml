@@ -34,6 +34,14 @@
             android:name=".UpdateAtRiskInformation"
             android:label="@string/title_activity_update_at_risk_information"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="4ed494fbd3d3576450533e9855a6388ea10c500e"
+        />
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
 </manifest>
