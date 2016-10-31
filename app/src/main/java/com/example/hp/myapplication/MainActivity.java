@@ -1,5 +1,6 @@
 package com.example.hp.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -9,26 +10,21 @@ import android.widget.Toast;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.androidnetworking.interfaces.OkHttpResponseListener;
 import com.digits.sdk.android.AuthCallback;
 import com.digits.sdk.android.Digits;
-    import com.digits.sdk.android.DigitsAuthButton;
+import com.digits.sdk.android.DigitsAuthButton;
 import com.digits.sdk.android.DigitsException;
 import com.digits.sdk.android.DigitsSession;
-import com.google.gson.Gson;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
-    import com.twitter.sdk.android.core.TwitterCore;
-
+import com.twitter.sdk.android.core.TwitterCore;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import io.fabric.sdk.android.Fabric;
-import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
@@ -61,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
+                Toast.makeText(getApplicationContext(), "Logging in!", Toast.LENGTH_LONG).show();
+
                 AndroidNetworking.post("https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev")
                         .addJSONObjectBody(jsonObject)
                         .setTag("FAN")
@@ -69,17 +67,28 @@ public class MainActivity extends AppCompatActivity {
                         .getAsOkHttpResponse(new OkHttpResponseListener() {
                             @Override
                             public void onResponse(Response response) {
-                                String TAG = "FAN";
-                                // do anything with response
-                                if (response.isSuccessful()) {
-                                    Log.d(TAG, "Headers :" + response.headers());
-                                    try {
-                                        Log.d(TAG, "response : " + response.body().source().readUtf8());
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+                                try{
+                                    String TAG = "FAN";
+                                    String jsonData = response.body().source().readUtf8();
+                                    JSONObject jsonObject = new JSONObject(jsonData);
+                                    Log.d(TAG, "jsonObj: " + jsonObject);
+                                    String userName = jsonObject.getString("userName");
+                                    String userType = jsonObject.getString("userType");
+                                    // do anything with response
+                                    if (response.isSuccessful()) {
+                                        try {
+                                            Log.d(TAG, "response : " + response.body().source().readUtf8());
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                        //Toast.makeText(getApplicationContext(), "Authentication successful for " + session.getId() + " token: " +
+                                        //        session.getAuthToken() + ", phone: " + phoneNumber, Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "(" + userType + ") Logging in as " + userName, Toast.LENGTH_SHORT).show();
+                                        Intent i = new Intent(MainActivity.this, ViewVolunteerActivity.class);
+                                        startActivity(i);
                                     }
-                                    Toast.makeText(getApplicationContext(), "Authentication successful for " + session.getId() + " token: " +
-                                            session.getAuthToken() + ", phone: " + phoneNumber, Toast.LENGTH_LONG).show();
+                                } catch (Exception e){
+                                    e.printStackTrace();
                                 }
                             }
                             @Override
