@@ -19,19 +19,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ViewDetails"
+            android:name=".Volunteer.ViewDetails"
             android:label="@string/title_activity_view_details"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ViewCaregiverActivity"
+            android:name=".Caregiver.ViewCaregiverActivity"
             android:label="@string/title_activity_view_caregiver"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ViewVolunteerActivity"
+            android:name=".Volunteer.ViewVolunteerActivity"
             android:label="@string/title_activity_view_volunteer"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".UpdateAtRiskInformation"
+            android:name=".Caregiver.UpdateAtRiskInformation"
             android:label="@string/title_activity_update_at_risk_information"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <meta-data
