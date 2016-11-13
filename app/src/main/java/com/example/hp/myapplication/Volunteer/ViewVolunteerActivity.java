@@ -1,9 +1,12 @@
 package com.example.hp.myapplication.Volunteer;
 
+import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +20,7 @@ import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.estimote.sdk.SystemRequirementsChecker;
+import com.example.hp.myapplication.AlertDialogFragment;
 import com.example.hp.myapplication.R;
 
 import java.util.List;
@@ -31,7 +35,6 @@ public class ViewVolunteerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("volact","it's beginningggggggg");
 
         // create a new estimote beacon manager
         beaconManager = new BeaconManager(getApplicationContext());
@@ -40,10 +43,20 @@ public class ViewVolunteerActivity extends AppCompatActivity {
             @Override
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
                 for(Beacon beacon : beacons){
-                    Log.w("volact","Siao liao. Got beacon liao");
-                    showNotification(
-                            "Found a beacon!",
-                            "BeaconID: " + beacon.getProximityUUID());
+                    Log.i("volact","Siao liao. Got beacon liao");
+                    String beaconUuid = "" + beacon.getProximityUUID(); // TODO get missing person name from DB?
+                    // assume that all beacons now are on the alert list
+                    if(!true && false){ // TODO check if beacon UUID is NOT on the alert list && user allows interaction data to be recorded
+                        Log.i("volact", "Beginning normal beacon interaction test:" + beaconUuid);
+                        // TODO upload interaction data to server
+                    } else if (true) { //TODO check if beacon UUID is on the alert list
+                        Log.i("volact", "Beginning missing beacon interaction test: " + beaconUuid);
+                        //showNotification( "Found a beacon!", "BeaconID: " + beaconUuid);
+                        // TODO alert user to this situation
+                        alertUser(beaconUuid);
+                        // TODO turn on ranging for this beacon
+                    }
+
 
                 }
             }
@@ -79,6 +92,47 @@ public class ViewVolunteerActivity extends AppCompatActivity {
 
             }
         });
+
+    }
+
+    private void alertUser(String identifier) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                ViewVolunteerActivity.this);
+
+        // Setting Dialog Title
+                alertDialog.setTitle("Found a beacon");
+
+        // Setting Dialog Message
+                alertDialog.setMessage("Beacon identifier: " + identifier);
+
+        // Setting Icon to Dialog
+                //alertDialog.setIcon(R.drawable.);
+
+        // Setting Positive "Yes" Btn
+                alertDialog.setPositiveButton("YES",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Write your code here to execute after dialog
+                                Toast.makeText(getApplicationContext(),
+                                        "You clicked on YES", Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        });
+
+        // Setting Negative "NO" Btn
+                alertDialog.setNegativeButton("NO",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Write your code here to execute after dialog
+                                Toast.makeText(getApplicationContext(),
+                                        "You clicked on NO", Toast.LENGTH_SHORT)
+                                        .show();
+                                dialog.cancel();
+                            }
+                        });
+
+        // Showing Alert Dialog
+                alertDialog.show();
 
     }
 
