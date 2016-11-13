@@ -16,6 +16,8 @@ import com.digits.sdk.android.Digits;
 import com.digits.sdk.android.DigitsAuthButton;
 import com.digits.sdk.android.DigitsException;
 import com.digits.sdk.android.DigitsSession;
+import com.example.hp.myapplication.Caregiver.ViewCaregiverActivity;
+import com.example.hp.myapplication.Volunteer.ViewDetails;
 import com.example.hp.myapplication.Volunteer.ViewVolunteerActivity;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
@@ -85,8 +87,16 @@ public class MainActivity extends AppCompatActivity {
                                         //Toast.makeText(getApplicationContext(), "Authentication successful for " + session.getId() + " token: " +
                                         //        session.getAuthToken() + ", phone: " + phoneNumber, Toast.LENGTH_LONG).show();
                                         Toast.makeText(getApplicationContext(), "(" + userType + ") Logging in as " + userName, Toast.LENGTH_SHORT).show();
-                                        Intent i = new Intent(MainActivity.this, ViewVolunteerActivity.class);
-                                        startActivity(i);
+                                        if(userType.equals("caretaker")){
+                                            Intent i = new Intent(MainActivity.this, ViewCaregiverActivity.class);
+                                            startActivity(i);
+                                            finish();
+                                        } else {
+                                            Intent i = new Intent(MainActivity.this, ViewVolunteerActivity.class);
+                                            startActivity(i);
+                                            finish();
+                                        }
+
                                     }
                                 } catch (Exception e){
                                     e.printStackTrace();

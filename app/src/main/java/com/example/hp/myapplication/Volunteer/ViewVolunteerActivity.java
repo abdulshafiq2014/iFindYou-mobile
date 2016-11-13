@@ -1,5 +1,6 @@
 package com.example.hp.myapplication.Volunteer;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Notification;
@@ -8,7 +9,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -22,6 +26,11 @@ import com.estimote.sdk.Region;
 import com.estimote.sdk.SystemRequirementsChecker;
 import com.example.hp.myapplication.AlertDialogFragment;
 import com.example.hp.myapplication.R;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,10 +40,42 @@ public class ViewVolunteerActivity extends AppCompatActivity {
     Button getBtn;
     EditText enterPID;
     private BeaconManager beaconManager;
+    private SupportMapFragment mapFragment;
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.content_view_volunteer);
+
+        //init map fragment
+        mapFragment = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map));
+        //mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
+
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+
+                    mMap = googleMap;
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(1.290270, 103.851959), 14));
+
+                    // Initialize Google Play Svcs
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            buildGoogleApiClient();
+                            mMap.setMyLocationEnabled(true);
+                        }
+                    } else {
+                        buildGoogleApiClient();
+                        mMap.setMyLocationEnabled(true);
+                    }
+                }
+            });
+        } else {
+            Toast.makeText(activity, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
+        }
 
         // create a new estimote beacon manager
         beaconManager = new BeaconManager(getApplicationContext());
@@ -78,7 +119,7 @@ public class ViewVolunteerActivity extends AppCompatActivity {
         //check for permissions required by estimote
         SystemRequirementsChecker.checkWithDefaultDialogs(this);
 
-        setContentView(R.layout.content_view_volunteer);
+
 
         enterPID = (EditText)findViewById(R.id.pid_text);
         getBtn = (Button)findViewById(R.id.getpid_button);

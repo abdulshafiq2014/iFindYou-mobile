@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="white">#ffffff</color>
+    <color name="colorPrimary">#2196F3</color>
+    <color name="colorPrimaryDark">#1976D2</color>
+    <color name="colorAccent1">#11BFF0</color>
+    <color name="colorAccent">#2196F3</color>
+    <color name="colorBasic">#75EAFF</color>
+    <color name="colorGray">#D0D0D0</color>
+    <color name="colorDarkGray">#999999</color>
+    <color name="darkGray">#424242</color>
+    <color name="black">#000000</color>
+    <color name="bt_very_light_gray">#E8E8EE</color>
+    <color name="red">#FF0000</color>
+    <color name="transparent">#00000000</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="request0">#FFFF8D</color>
+    <color name="request1">#FFFF00</color>
+    <color name="request2">#FFEA00</color>
+    <color name="request3">#FF8A65</color>
+    <color name="fulfillBar2">#FF9304</color>
+    <color name="fulfillBar">#FFC404</color>
+    <color name="fulfill0">#B9F6CA</color>
+    <color name="fulfill1">#69F0AE</color>
+    <color name="fulfill2">#00E676</color>
+    <color name="darkred">#C70039</color>
+    <color name="darkGreen">#45B39D</color>
 
 </resources>
