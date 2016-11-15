@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
@@ -38,16 +39,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.content_main);
         // digits by twitter
         TwitterAuthConfig authConfig = new TwitterAuthConfig(kay, sct);
         Fabric.with(this, new TwitterCore(authConfig), new Digits.Builder().build());
         // fast android networking
         AndroidNetworking.initialize(getApplicationContext());
-        setContentView(R.layout.content_main);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         DigitsAuthButton digitsButton = (DigitsAuthButton) findViewById(R.id.auth_button);
+//        digitsButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent i = new Intent(MainActivity.this, ViewVolunteerActivity.class);
+//            }
+//        });
         digitsButton.setCallback(new AuthCallback() {
             @Override
             public void success(final DigitsSession session, final String phoneNumber) {
@@ -56,13 +63,14 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     jsonObject.put("user_uuid", String.valueOf(session.getId()));
                     jsonObject.put("phone_number", phoneNumber);
+                    Log.d("check","phonenumber is : " + phoneNumber);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
                 Toast.makeText(getApplicationContext(), "Logging in!", Toast.LENGTH_LONG).show();
 
-                AndroidNetworking.post("https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev")
+                AndroidNetworking.post("https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/users")
                         .addJSONObjectBody(jsonObject)
                         .setTag("FAN")
                         .setPriority(Priority.MEDIUM)
@@ -126,7 +134,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void failure(DigitsException error) {
-
+                Log.d("check","Failure");
+                Toast.makeText(getApplicationContext(), "Unfortunately we couldn't log you in!", Toast.LENGTH_LONG).show();
             }
         });
     }

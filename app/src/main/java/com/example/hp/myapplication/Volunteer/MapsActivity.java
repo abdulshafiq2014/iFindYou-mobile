@@ -1,4 +1,4 @@
-package com.example.hp.myapplication;
+package com.example.hp.myapplication.Volunteer;
 
 
 import android.Manifest;
@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.hp.myapplication.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
