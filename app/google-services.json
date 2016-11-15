@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "721894261296",
+    "firebase_url": "https://notificationsender-347f2.firebaseio.com",
+    "project_id": "notificationsender-347f2",
+    "storage_bucket": "notificationsender-347f2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721894261296:android:5c977e4b1873100c",
+        "android_client_info": {
+          "package_name": "com.example.hp.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "721894261296-j4c2a3j1esl42ghl7iqao0vl7v9to92r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtkXdG4rr_rSPaFO0Ug8sIE3921Bff8ts"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

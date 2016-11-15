@@ -13,6 +13,8 @@
         android:layout_height="match_parent"
         android:background="@color/white">
 
+
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,7 +38,8 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/welcome_volunteer" />
+            android:layout_below="@+id/welcome_volunteer"
+            android:layout_above="@+id/row_layout" />
 
         <!--<TextView-->
             <!--android:layout_width="match_parent"-->
@@ -86,6 +89,16 @@
             <!--android:layout_below="@+id/pid_text"-->
             <!--android:layout_centerHorizontal="true"-->
             <!--android:layout_marginTop="37dp" />-->
+
+        <include
+            android:id="@+id/row_layout"
+            layout="@layout/row_layout"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            >
+        </include>
 
     </RelativeLayout>
 </RelativeLayout>

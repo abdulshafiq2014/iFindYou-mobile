@@ -4,38 +4,63 @@
     android:background="#FFFFFF">
 
     <ImageView
-        android:id = "@+id/request_image"
-        android:layout_width="100dp"
+        android:id = "@+id/client_image"
+        android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_alignParentLeft="true"
+        android:background="@drawable/face_icon"
         />
 
     <TextView
-        android:id="@+id/request_title"
+        android:id="@+id/client_name"
         android:text="NAME OF CLIENT"
+        android:textStyle="bold"
         android:layout_width="match_parent"
         android:layout_height="35dp"
-        android:layout_toRightOf="@+id/request_image"
-        android:gravity="center"
-        android:textColor="@drawable/ic_perm_identity_black_18dp"
+        android:layout_toRightOf="@+id/client_image"
+        android:gravity="center_vertical"
+        android:textColor="@color/black"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="70dp"
         />
 
     <TextView
         android:id="@+id/request_requirement"
         android:layout_width="match_parent"
         android:layout_height="35dp"
-        android:layout_below="@+id/request_title"
-        android:gravity="center"
-        android:layout_toRightOf="@+id/request_image"
-        android:layout_toEndOf="@+id/request_image"
+        android:layout_below="@+id/client_name"
+        android:gravity="center_vertical"
+        android:layout_toRightOf="@+id/client_image"
+        android:layout_toEndOf="@+id/client_image"
         android:textColor="@color/black"
+        android:layout_marginLeft="15dp"
+        android:text="Shafiq is lost! Please contact his caregiver immediately!"
+        android:layout_marginRight="70dp"
         />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="@color/colorWhite"
-        android:layout_below="@+id/request_image"
+        android:layout_below="@+id/client_image"
         ></View>
+
+    <Button
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_alignRight="@+id/client_name"
+        android:background="@drawable/phone_call"
+        android:text="CALL"
+        android:textStyle="bold"
+        android:textColor="@color/darkGreen"
+        android:id="@+id/call_caregiver"/>
 
 
 </RelativeLayout>

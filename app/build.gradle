@@ -13,6 +13,7 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
+
 repositories {
     maven { url 'https://maven.fabric.io/public' }
 }
@@ -50,6 +51,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:9.4.0'
     compile 'com.google.android.gms:play-services-gcm:9.4.0'
     compile 'com.google.maps.android:android-maps-utils:0.4+'
+
     compile('com.digits.sdk.android:digits:2.0.2@aar') {
         transitive = true;
     }
@@ -60,3 +62,4 @@ dependencies {
     //   https://github.com/Estimote/Android-SDK/releases
     compile 'com.estimote:sdk:0.13.0@aar'
 }
+apply plugin: 'com.google.gms.google-services'

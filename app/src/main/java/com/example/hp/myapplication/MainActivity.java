@@ -6,6 +6,7 @@ import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
@@ -49,12 +50,29 @@ public class MainActivity extends AppCompatActivity {
         StrictMode.setThreadPolicy(policy);
 
         DigitsAuthButton digitsButton = (DigitsAuthButton) findViewById(R.id.auth_button);
-//        digitsButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent i = new Intent(MainActivity.this, ViewVolunteerActivity.class);
-//            }
-//        });
+
+        //buttons if login has isseus -> development purposes only
+        Button volBtn = (Button)findViewById(R.id.volunteer);
+        volBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, ViewVolunteerActivity.class);
+                startActivity(i);
+                finish();
+            }
+        });
+
+        Button caretkrBtn = (Button)findViewById(R.id.caretaker);
+        caretkrBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, ViewCaregiverActivity.class);
+                startActivity(i);
+                finish();
+            }
+        });
+
+        //continue for digit log in/authentication
         digitsButton.setCallback(new AuthCallback() {
             @Override
             public void success(final DigitsSession session, final String phoneNumber) {

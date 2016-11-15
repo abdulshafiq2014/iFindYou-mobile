@@ -23,6 +23,27 @@
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VOLUNTEER SCREEN"
+            android:textSize="20dp"
+            android:layout_below="@+id/auth_button"
+            android:id="@+id/volunteer"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CAREGIVER SCREEN"
+            android:textSize="20dp"
+            android:layout_below="@+id/volunteer"
+            android:id="@+id/caretaker"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"/>
+
 
     </RelativeLayout>
 </RelativeLayout>
