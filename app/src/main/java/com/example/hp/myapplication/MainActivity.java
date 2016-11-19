@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
                                         } else {*/
                                             Intent i = new Intent(MainActivity.this, ViewVolunteerActivity.class);
                                             i.putExtra("userType", userType);
+                                            i.putExtra("uuid",String.valueOf(session.getId()));
                                             startActivity(i);
                                             finish();
                                         //}

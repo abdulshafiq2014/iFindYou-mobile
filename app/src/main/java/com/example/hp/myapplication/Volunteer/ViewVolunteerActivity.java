@@ -69,6 +69,7 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
     private Context activity;
     private String caregiverNo;
     private TextView topBanner;
+    private String uuid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,14 +78,18 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
 
         Intent intent = getIntent();
         final String userType = intent.getStringExtra("userType");
+        uuid = intent.getStringExtra("uuid");
 
         topBanner = (TextView) findViewById(R.id.text_view);
+
+
 
         topBanner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(userType.equals("caretaker")){
                     Intent i = new Intent(getApplicationContext(), ViewCaregiverActivity.class);
+                    i.putExtra("uuid",uuid);
                     startActivity(i);
                     finish();
                 } else {
@@ -175,8 +180,6 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
                         missingAlert.show(getFragmentManager(), "missingAlert");
                         // TODO turn on ranging for this beacon
                     }
-
-
                 }
             }
             @Override
