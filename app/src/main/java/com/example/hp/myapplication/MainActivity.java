@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                                             finish();
                                         } else {*/
                                             Intent i = new Intent(MainActivity.this, ViewVolunteerActivity.class);
+                                            i.putExtra("userType", userType);
                                             startActivity(i);
                                             finish();
                                         //}

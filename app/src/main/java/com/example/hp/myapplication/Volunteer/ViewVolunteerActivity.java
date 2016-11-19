@@ -75,14 +75,22 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_view_volunteer);
 
+        Intent intent = getIntent();
+        final String userType = intent.getStringExtra("userType");
+
         topBanner = (TextView) findViewById(R.id.text_view);
 
         topBanner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), ViewCaregiverActivity.class);
-                startActivity(i);
-                finish();
+                if(userType.equals("caretaker")){
+                    Intent i = new Intent(getApplicationContext(), ViewCaregiverActivity.class);
+                    startActivity(i);
+                    finish();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Error: Not a caregiver", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
