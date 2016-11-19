@@ -18,10 +18,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Welcome!"
+            android:text="Click to go to caregiver"
             android:drawablePadding="8dp"
             android:textSize="25sp"
-            android:id="@+id/welcome_volunteer"
+            android:id="@+id/text_view"
             android:gravity="center_vertical"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
@@ -38,7 +38,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/welcome_volunteer"
+            android:layout_below="@+id/text_view"
             android:layout_above="@+id/row_layout" />
 
         <!--<TextView-->

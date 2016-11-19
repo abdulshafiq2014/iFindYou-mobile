@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
@@ -32,6 +33,7 @@ import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.estimote.sdk.SystemRequirementsChecker;
 import com.example.hp.myapplication.AlertDialogFragment;
+import com.example.hp.myapplication.Caregiver.ViewCaregiverActivity;
 import com.example.hp.myapplication.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -66,11 +68,23 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
     public LocationRequest mLocationRequest;
     private Context activity;
     private String caregiverNo;
+    private TextView topBanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_view_volunteer);
+
+        topBanner = (TextView) findViewById(R.id.text_view);
+
+        topBanner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), ViewCaregiverActivity.class);
+                startActivity(i);
+                finish();
+            }
+        });
 
         View view = (View) findViewById(R.id.row_layout);
         view.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +94,8 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
                 startActivity(intent);
             }
         });
+
+
 
         Button callBtn = (Button)findViewById(R.id.call_caregiver);
         caregiverNo = "90252088";
@@ -414,6 +430,10 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
         Toast.makeText(getApplicationContext(), "ignore", Toast.LENGTH_SHORT).show();
         beaconManager.stopRanging(region);
     }
+
+
+
+
 
 
 }

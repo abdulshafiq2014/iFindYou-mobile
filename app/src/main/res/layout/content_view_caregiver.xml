@@ -27,6 +27,14 @@
                 android:background="@drawable/ic_profile"
                 android:layout_marginTop="30dp"
                 android:layout_marginLeft="30dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/is_missing"
+                android:text="Missing: Yes"
+                android:textSize="24sp"
+                android:layout_gravity="center"
+                android:textAlignment="center"/>
 
 
         </LinearLayout>
@@ -113,7 +121,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Shafiq has a severe case of Bipolar Disorder. When he is under severe depression or anxiety, he often disappears without anyone knowing and is often violent during these periods."
+                android:text="Im wearing a shirt"
                 android:drawablePadding="20dp"
                 android:textSize="18sp"
                 android:id="@+id/description_box"
@@ -126,6 +134,40 @@
 
         </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/desc"
+            android:id="@+id/contact_no"
+            >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Phone Number: "
+                android:drawablePadding="8dp"
+                android:textSize="18sp"
+                android:id="@+id/contact_no_title"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="30dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="90252088"
+                android:drawablePadding="20dp"
+                android:textSize="15sp"
+                android:id="@+id/contact_no_details"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_below="@id/contact_no_title"/>
+
+        </RelativeLayout>
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="45dp"
@@ -133,7 +175,7 @@
             android:textAlignment="center"
             android:id="@+id/update"
             android:background="@color/colorAccent"
-            android:layout_below="@+id/desc"
+            android:layout_below="@+id/contact_no"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="37dp"
             android:layout_marginBottom="20dp"/>
