@@ -81,6 +81,8 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
             }
         });
 
+
+
         Button callBtn = (Button)findViewById(R.id.call_caregiver);
         caregiverNo = "90252088";
         callBtn.setOnClickListener(new View.OnClickListener() {
@@ -414,6 +416,10 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
         Toast.makeText(getApplicationContext(), "ignore", Toast.LENGTH_SHORT).show();
         beaconManager.stopRanging(region);
     }
+
+
+
+
 
 
 }

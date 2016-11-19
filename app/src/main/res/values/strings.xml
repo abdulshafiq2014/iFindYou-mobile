@@ -5,4 +5,5 @@
     <string name="title_activity_view_caregiver">ViewCaregiverActivity</string>
     <string name="title_activity_view_volunteer">ViewVolunteerActivity</string>
     <string name="title_activity_update_at_risk_information">UpdateAtRiskInformation</string>
+    <string name="responseisnull">Response is null</string>
 </resources>
