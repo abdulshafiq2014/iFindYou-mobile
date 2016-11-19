@@ -21,7 +21,6 @@ import org.json.JSONObject;
 
 public class UpdateAtRiskInformation extends AppCompatActivity {
     Button updateBtn;
-    private String bID;
     private String err;
     private final String request = "updateProfile";
     private String caretaker;
@@ -29,6 +28,8 @@ public class UpdateAtRiskInformation extends AppCompatActivity {
     private String details;
     private int missing;
     private String name;
+    private String uuid;
+    private String bID;
 
     private EditText pid_name, last_seen_text, description_box, contact_no_details;
     private TextView is_missing;
@@ -36,6 +37,10 @@ public class UpdateAtRiskInformation extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_at_risk_information);
+
+        Intent intent = getIntent();
+        uuid = intent.getStringExtra("uuid");
+        bID = intent.getStringExtra("bID");
 
         updateBtn = (Button) findViewById(R.id.cfm_update);
         pid_name = (EditText)findViewById(R.id.pid_name);
@@ -49,10 +54,9 @@ public class UpdateAtRiskInformation extends AppCompatActivity {
             public void onClick(View v) {
 
                 name = pid_name.getText().toString();
-                caretaker = "Lucas";
+                caretaker = uuid;
                 contact_number = contact_no_details.getText().toString();
                 details = description_box.getText().toString();
-                missing = -1;
 
 
                 new AlertDialog.Builder(UpdateAtRiskInformation.this)
@@ -106,7 +110,7 @@ public class UpdateAtRiskInformation extends AppCompatActivity {
             }
 
 
-            bID = "797402778773489664";
+            //bID = "797402778773489664";
             //this method will be running on background thread so don't update UI frome here
             //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
             String url = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/beacons/" + bID;
@@ -137,17 +141,16 @@ public class UpdateAtRiskInformation extends AppCompatActivity {
 //                missing
                 i.putExtra("Source", "UpdateAtRiskInformation");
                 i.putExtra("name",name);
-                i.putExtra("caretaker",caretaker);
+                i.putExtra("caretaker","793319548489392128");
                 i.putExtra("details",details);
                 i.putExtra("missing",missing);
+                i.putExtra("uuid",uuid);
 
                 startActivity(i);
                 finish();
             } else {
                 Toast.makeText(getBaseContext(), err, Toast.LENGTH_LONG).show();
             }
-
-
 
         }
 

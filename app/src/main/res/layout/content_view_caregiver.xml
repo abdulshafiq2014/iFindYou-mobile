@@ -67,7 +67,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Name: Abdul Shafiq Bin Mohd Yussaini"
+                android:text=""
                 android:textSize="18sp"
                 android:id="@+id/pid_name"
                 android:gravity="center_vertical"
@@ -96,6 +96,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
+                android:id="@+id/last_seen_text"
                 />
 
         </LinearLayout>
@@ -121,7 +122,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Im wearing a shirt"
+                android:text=""
                 android:drawablePadding="20dp"
                 android:textSize="18sp"
                 android:id="@+id/description_box"
@@ -155,9 +156,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="90252088"
+                android:text=""
                 android:drawablePadding="20dp"
-                android:textSize="15sp"
+                android:textSize="18sp"
                 android:id="@+id/contact_no_details"
                 android:gravity="center_vertical"
                 android:layout_weight="1"
@@ -180,16 +181,18 @@
             android:layout_marginTop="37dp"
             android:layout_marginBottom="20dp"/>
 
-        <Button
+        <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="45dp"
-            android:text="Report Missing"
+            android:text=""
             android:textAlignment="center"
             android:id="@+id/report_missing"
-            android:background="@color/colorPrimary"
+            android:background="@color/darkred"
             android:layout_below="@+id/update"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
+            android:textOn="Report Found"
+            android:textOff="Report Missing"
             android:layout_marginBottom="20dp"/>
     </RelativeLayout>
 </ScrollView>

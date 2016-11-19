@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.makeText(getApplicationContext(), "(" + userType + ") Logging in as " + userName, Toast.LENGTH_SHORT).show();
                                         if(userType.equals("caretaker")){
                                             Intent i = new Intent(MainActivity.this, ViewCaregiverActivity.class);
+                                            i.putExtra("uuid",String.valueOf(session.getId()));
                                             startActivity(i);
                                             finish();
                                         } else {
