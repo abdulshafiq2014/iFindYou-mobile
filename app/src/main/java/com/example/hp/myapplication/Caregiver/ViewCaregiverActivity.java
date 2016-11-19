@@ -19,6 +19,7 @@ import com.estimote.sdk.internal.utils.L;
 import com.estimote.sdk.repackaged.gson_v2_3_1.com.google.gson.Gson;
 import com.example.hp.myapplication.R;
 import com.example.hp.myapplication.UtilHttp;
+import com.example.hp.myapplication.Volunteer.ViewVolunteerActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +29,7 @@ public class ViewCaregiverActivity extends AppCompatActivity {
 
     ToggleButton reportBtn;
     Button updateBtn;
+    Button backBtn;
     String err;
     private String bID;
     String uuid;
@@ -46,6 +48,7 @@ public class ViewCaregiverActivity extends AppCompatActivity {
         //initialize UI components
         reportBtn = (ToggleButton)findViewById(R.id.report_missing);
         updateBtn = (Button)findViewById(R.id.update);
+        backBtn = (Button) findViewById(R.id.back_button);
         is_missing = (TextView)findViewById(R.id.is_missing);
         pid_name = (TextView) findViewById(R.id.pid_name);
         last_seen_text = (TextView) findViewById(R.id.last_seen_text);
@@ -114,6 +117,15 @@ public class ViewCaregiverActivity extends AppCompatActivity {
                 i.putExtra("uuid",uuid);
                 i.putExtra("bID",bID);
                 Toast.makeText(getApplicationContext(), "Going to edit information page...", Toast.LENGTH_SHORT).show();
+                startActivity(i);
+                finish();
+            }
+        });
+
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ViewCaregiverActivity.this, ViewVolunteerActivity.class);
                 startActivity(i);
                 finish();
             }

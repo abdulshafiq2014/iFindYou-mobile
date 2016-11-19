@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         DigitsAuthButton digitsButton = (DigitsAuthButton) findViewById(R.id.auth_button);
 
         //buttons if login has isseus -> development purposes only
-        Button volBtn = (Button)findViewById(R.id.volunteer);
+        /*Button volBtn = (Button)findViewById(R.id.volunteer);
         volBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
                 finish();
             }
-        });
+        }); */
 
         //continue for digit log in/authentication
         digitsButton.setCallback(new AuthCallback() {
@@ -113,16 +113,17 @@ public class MainActivity extends AppCompatActivity {
                                         //Toast.makeText(getApplicationContext(), "Authentication successful for " + session.getId() + " token: " +
                                         //        session.getAuthToken() + ", phone: " + phoneNumber, Toast.LENGTH_LONG).show();
                                         Toast.makeText(getApplicationContext(), "(" + userType + ") Logging in as " + userName, Toast.LENGTH_SHORT).show();
-                                        if(userType.equals("caretaker")){
+                                        /*if(userType.equals("caretaker")){
                                             Intent i = new Intent(MainActivity.this, ViewCaregiverActivity.class);
                                             i.putExtra("uuid",String.valueOf(session.getId()));
                                             startActivity(i);
                                             finish();
-                                        } else {
+                                        } else {*/
                                             Intent i = new Intent(MainActivity.this, ViewVolunteerActivity.class);
+                                            i.putExtra("userType", userType);
                                             startActivity(i);
                                             finish();
-                                        }
+                                        //}
 
                                     }
                                 } catch (Exception e){
