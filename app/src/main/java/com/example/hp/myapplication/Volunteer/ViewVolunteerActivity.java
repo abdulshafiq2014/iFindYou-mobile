@@ -111,6 +111,7 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
                     // Initialize Google Play Svcs
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            Log.d("testing","location runs through here");
                             buildGoogleApiClient();
                             mMap.setMyLocationEnabled(true);
                         }
@@ -308,7 +309,7 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
 //
         // Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
+        Log.d("testing","location changed current latlng is : " + latLng);
 
 
         //move camera to marker
