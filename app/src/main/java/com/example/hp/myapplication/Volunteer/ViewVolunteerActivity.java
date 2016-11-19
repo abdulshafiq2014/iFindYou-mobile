@@ -53,11 +53,13 @@ import java.util.UUID;
 public class ViewVolunteerActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener,
+        DetectedMissingBeaconDialogFragment.MissingBeaconDialogListener {
 
     Button getBtn;
     EditText enterPID;
     private BeaconManager beaconManager;
+    private Region region = new Region( "allBeacons", null, null, null);
     private SupportMapFragment mapFragment;
     private GoogleMap mMap;
     protected GoogleApiClient mGoogleApiClient;
@@ -127,6 +129,9 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
 
         // create a new estimote beacon manager
         beaconManager = new BeaconManager(getApplicationContext());
+        beaconManager.setBackgroundScanPeriod(3000, 2000);
+        beaconManager.setForegroundScanPeriod(3000, 2000);
+        beaconManager.setRegionExitExpiration(5000);
         // display notification if entering region
         beaconManager.setMonitoringListener(new BeaconManager.MonitoringListener() {
             @Override
@@ -142,7 +147,8 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
                         Log.i("volact", "Beginning missing beacon interaction test: " + beaconUuid);
                         //showNotification( "Found a beacon!", "BeaconID: " + beaconUuid);
                         // TODO alert user to this situation
-                        alertUser(beaconUuid);
+                        DialogFragment missingAlert = new DetectedMissingBeaconDialogFragment();
+                        missingAlert.show(getFragmentManager(), "missingAlert");
                         // TODO turn on ranging for this beacon
                     }
 
@@ -152,15 +158,15 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
             @Override
             public void onExitedRegion(Region region) {
                 // could add an "exit" notification too if you want (-:
+                Log.i("volact", "No moar beacon: ");
+                Toast.makeText(getApplicationContext(), "No moar beacon", Toast.LENGTH_SHORT).show();
             }
         });
         //connect to beacon if available
         beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
             @Override
             public void onServiceReady() {
-                beaconManager.startMonitoring(new Region(
-                        "allBeacons",
-                        null, null, null));
+                beaconManager.startMonitoring(region);
             }
         });
 
@@ -185,6 +191,8 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void alertUser(String identifier) {
+
+        /*
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(
                 ViewVolunteerActivity.this);
 
@@ -222,6 +230,8 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
 
         // Showing Alert Dialog
                 alertDialog.show();
+
+        */
 
     }
 
@@ -375,6 +385,34 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
             }
 
         }
+    }
+
+    // The dialog fragment receives a reference to this Activity through the
+    // Fragment.onAttach() callback, which it uses to call the following methods
+    // defined by the NoticeDialogFragment.NoticeDialogListener interface
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        // User touched the dialog's positive button
+        Toast.makeText(getApplicationContext(), "tracking", Toast.LENGTH_SHORT).show();
+        beaconManager.setRangingListener(new BeaconManager.RangingListener() {
+            @Override
+            public void onBeaconsDiscovered(Region region, List<Beacon> list) {
+                if (!list.isEmpty()) {
+                    for (Beacon b: list){
+                        Log.i("missingBeacon", "id: " + b.getProximityUUID() + " dist: " + b.getMeasuredPower());
+                    }
+                }
+            }
+        });
+        beaconManager.startRanging(region);
+
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        // User touched the dialog's negative button
+        Toast.makeText(getApplicationContext(), "ignore", Toast.LENGTH_SHORT).show();
+        beaconManager.stopRanging(region);
     }
 
 
