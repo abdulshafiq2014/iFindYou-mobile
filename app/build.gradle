@@ -51,6 +51,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:9.4.0'
     compile 'com.google.android.gms:play-services-gcm:9.4.0'
     compile 'com.google.maps.android:android-maps-utils:0.4+'
+    compile 'commons-io:commons-io:2.4'
 
     compile('com.digits.sdk.android:digits:2.0.2@aar') {
         transitive = true;
