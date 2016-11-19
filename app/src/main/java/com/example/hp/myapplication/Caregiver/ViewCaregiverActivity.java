@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.hp.myapplication.R;
 import com.example.hp.myapplication.UtilHttp;
+import com.example.hp.myapplication.Volunteer.ViewVolunteerActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +23,7 @@ public class ViewCaregiverActivity extends AppCompatActivity {
 
     Button reportBtn;
     Button updateBtn;
+    Button backBtn;
     String err;
     private String bID;
 
@@ -35,6 +37,7 @@ public class ViewCaregiverActivity extends AppCompatActivity {
         //initialize UI components
         reportBtn = (Button)findViewById(R.id.report_missing);
         updateBtn = (Button)findViewById(R.id.update);
+        backBtn = (Button) findViewById(R.id.back_button);
         is_missing = (TextView)findViewById(R.id.is_missing);
         pid_name = (TextView) findViewById(R.id.pid_name);
         last_seen_text = (TextView) findViewById(R.id.last_seen_text);
@@ -93,6 +96,15 @@ public class ViewCaregiverActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Going to edit information page...", Toast.LENGTH_SHORT).show();
                 startActivity(i);
 
+            }
+        });
+
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ViewCaregiverActivity.this, ViewVolunteerActivity.class);
+                startActivity(i);
+                finish();
             }
         });
 
