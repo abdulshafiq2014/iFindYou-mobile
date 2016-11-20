@@ -25,5 +25,6 @@
     <color name="green">#00E676</color>
     <color name="darkred">#C70039</color>
     <color name="darkGreen">#45B39D</color>
+    <color name="lightPurple">#bca4c1</color>
 
 </resources>

@@ -25,7 +25,7 @@
         />
 
     <TextView
-        android:id="@+id/request_requirement"
+        android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:layout_below="@+id/client_name"
@@ -34,7 +34,7 @@
         android:layout_toEndOf="@+id/client_image"
         android:textColor="@color/black"
         android:layout_marginLeft="15dp"
-        android:text="Shafiq is lost! Please contact his caregiver immediately!"
+        android:text=""
         android:layout_marginRight="70dp"
         />
 

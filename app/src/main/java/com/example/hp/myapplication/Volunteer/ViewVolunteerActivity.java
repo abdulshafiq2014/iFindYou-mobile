@@ -7,17 +7,21 @@ import android.app.DialogFragment;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -35,6 +39,7 @@ import com.estimote.sdk.SystemRequirementsChecker;
 import com.example.hp.myapplication.AlertDialogFragment;
 import com.example.hp.myapplication.Caregiver.ViewCaregiverActivity;
 import com.example.hp.myapplication.R;
+import com.example.hp.myapplication.UtilHttp;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -45,14 +50,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.UUID;
 
-public class ViewVolunteerActivity extends AppCompatActivity implements OnMapReadyCallback,
+public class ViewVolunteerActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
@@ -68,61 +76,69 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
     public LocationRequest mLocationRequest;
     private Context activity;
     private String caregiverNo;
-    private TextView topBanner;
+    private TextView topBanner, client_name, description;
     private String uuid;
+    private String baseInfo = " is nearby and lost! Contact his caregiver immediately!";
+    private String noAlert = "No missing people nearby";
+    private Button contact, callBtn;
+    private Context mContext;
+    private Activity mActivity;
+    private Circle circle;
+    private String caretaker, name, contact_number,details, beacon_id;
+    private String err;
+    private int missing, unix_time;
+    private boolean nearMissingPerson = false;
+    private View view;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_view_volunteer);
-
+        mContext = getApplication().getApplicationContext();
         Intent intent = getIntent();
         final String userType = intent.getStringExtra("userType");
         uuid = intent.getStringExtra("uuid");
 
         topBanner = (TextView) findViewById(R.id.text_view);
 
+        checkLocationPermission();
+        new getInformation().execute();
 
-
-        topBanner.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(userType.equals("caretaker")){
-                    Intent i = new Intent(getApplicationContext(), ViewCaregiverActivity.class);
-                    i.putExtra("uuid",uuid);
-                    startActivity(i);
-                    finish();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Error: Not a caregiver", Toast.LENGTH_SHORT).show();
+        if(userType.equals("caretaker")){
+            topBanner.setText("Click to go to caregiver page");
+            topBanner.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                        Intent i = new Intent(getApplicationContext(), ViewCaregiverActivity.class);
+                        i.putExtra("uuid",uuid);
+                        i.putExtra("userType",userType);
+                        startActivity(i);
+                        finish();
                 }
+            });
+        } else {
+            topBanner.setText("Welcome to the volunteer page!");
+        }
 
-            }
-        });
-
-        View view = (View) findViewById(R.id.row_layout);
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ViewVolunteerActivity.this,ViewDetails.class);
-                startActivity(intent);
-            }
-        });
+        contact = (Button)findViewById(R.id.call_caregiver);
+        client_name = (TextView) findViewById(R.id.client_name);
+        description = (TextView)findViewById(R.id.description);
 
 
 
-        Button callBtn = (Button)findViewById(R.id.call_caregiver);
-        caregiverNo = "90252088";
-        callBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent callIntent = new Intent(Intent.ACTION_DIAL );
-                callIntent.setData(Uri.parse("tel:" + caregiverNo));
+        view = (View) findViewById(R.id.row_layout);
 
-                if (ContextCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                }
-                startActivity(callIntent);
-            }
-        });
+
+
+
+        
+
+
+        callBtn = (Button)findViewById(R.id.call_caregiver);
+
+        callBtn.setVisibility(view.GONE);
+        description.setVisibility(view.GONE);
 
 
 
@@ -139,9 +155,13 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
                     mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(1.290270, 103.851959), 14));
 
+
+
                     // Initialize Google Play Svcs
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        Log.d("testing","permissions is :  " + (ContextCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
+
+                        if (ContextCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                             Log.d("testing","location runs through here");
                             buildGoogleApiClient();
                             mMap.setMyLocationEnabled(true);
@@ -343,6 +363,7 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
 
         mMap.clear();
 
+
 //
         // Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -352,9 +373,10 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
         //move camera to marker
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        CameraPosition cmp = new CameraPosition(latLng, 16, 0, 0);
-
+        CameraPosition cmp = new CameraPosition(latLng, 20, 0, 0);
+        drawCircle(latLng, 10);
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cmp));
+
 
 
         //stop location updates
@@ -371,17 +393,18 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
+        if (ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //Ask user if need to explain
-            if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) activity, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+            Log.d("testing","mContext is : " + mContext);
+            Log.d("testing","Activity is : " + this);
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 //Prompt user once we show explanation
-                ActivityCompat.requestPermissions((Activity) activity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
 
             } else {
                 //No need to explain
-                ActivityCompat.requestPermissions((Activity) activity, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
             }
             return false;
         } else {
@@ -398,7 +421,7 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     //Permission was granted
-                    if (ContextCompat.checkSelfPermission(activity, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
                         }
@@ -406,7 +429,7 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
                     mMap.setMyLocationEnabled(true);
                 } else {
                     //Permission denied, Disable the functionality that depends on this permission
-                    Toast.makeText(activity, "Permission Denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -419,6 +442,12 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
     // defined by the NoticeDialogFragment.NoticeDialogListener interface
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
+
+        nearMissingPerson = true;
+
+        callBtn.setVisibility(view.VISIBLE);
+        description.setVisibility(view.VISIBLE);
+
         // User touched the dialog's positive button
         Toast.makeText(getApplicationContext(), "tracking", Toast.LENGTH_SHORT).show();
         beaconManager.setRangingListener(new BeaconManager.RangingListener() {
@@ -433,6 +462,37 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
         });
         beaconManager.startRanging(region);
 
+        client_name.setText(name);
+        description.setText(name + baseInfo);
+        caregiverNo = contact_number;
+
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ViewVolunteerActivity.this,ViewDetails.class);
+                Log.d("testing", "here first");
+                intent.putExtra("name",name);
+                intent.putExtra("details",details);
+                intent.putExtra("caregiver",caretaker);
+                intent.putExtra("contact",contact_number);
+                intent.putExtra("unix_time",missing);
+                startActivity(intent);
+            }
+        });
+
+        callBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent callIntent = new Intent(Intent.ACTION_DIAL );
+                callIntent.setData(Uri.parse("tel:" + caregiverNo));
+
+                if (ContextCompat.checkSelfPermission(getApplication().getApplicationContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                }
+                startActivity(callIntent);
+            }
+        });
+
     }
 
     @Override
@@ -443,7 +503,141 @@ public class ViewVolunteerActivity extends AppCompatActivity implements OnMapRea
     }
 
 
+    private void drawCircle(LatLng point, int radius) {
 
+        // Instantiating CircleOptions to draw a circle around the marker
+        CircleOptions circleOptions = new CircleOptions();
+
+        // Specifying the center of the circle
+        circleOptions.center(point);
+
+        // Radius of the circle
+        circleOptions.radius(radius);
+
+        // Border color of the circle
+        circleOptions.strokeColor(Color.MAGENTA);
+
+        // Fill color of the circle
+        circleOptions.fillColor(0x30bca4c1);
+
+        // Border width of the circle
+        circleOptions.strokeWidth(3);
+
+        // Adding the circle to the GoogleMap
+        circle = mMap.addCircle(circleOptions);
+
+    }
+
+    private class getInformation extends AsyncTask<Object, Object, Boolean> {
+        ProgressDialog pdLoading = new ProgressDialog(ViewVolunteerActivity.this);
+        boolean success = false;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            //this method will be running on UI thread
+            pdLoading.setMessage("Updating information...");
+            pdLoading.show();
+        }
+        @Override
+        protected Boolean doInBackground(Object... params) {
+            //form JSON object to post
+            JSONObject jsoin = null;
+
+            try {
+
+                jsoin = new JSONObject();
+                Log.d("testing","uuid is : " + uuid);
+                jsoin.put("caretaker_uuid", uuid);
+
+
+            } catch (JSONException e){
+                e.printStackTrace();
+                err = e.getMessage();
+            }
+
+
+            //this method will be running on background thread so don't update UI frome here
+            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
+            String url = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/beacons/";
+
+            String rst = UtilHttp.doHttpPostJson(getApplication().getApplicationContext(),url,jsoin.toString());
+            if (rst == null) {
+                err = UtilHttp.err;
+            } else {
+
+                Log.d("check",rst.toString());
+
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(rst);
+
+                    missing = jsonObject.getInt("missing");
+                    caretaker = jsonObject.getString("caretaker");
+                    name = jsonObject.getString("name");
+                    contact_number = jsonObject.getString("contact_number");
+                    details = jsonObject.getString("details");
+                    beacon_id = jsonObject.getString("beacon_id");
+
+
+                    Log.d("testing", "or here first ???");
+                    Log.d("testing", "or here first ??? details is : " + details);
+                    success = true;
+
+                } catch (JSONException e){
+                    e.printStackTrace();
+                    err = e.toString();
+                    Log.d("check","here");
+                    success = false;
+                }
+
+            }
+            return success;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+
+            //this method will be running on UI thread
+            if (result){
+                pdLoading.dismiss();
+
+//                client_name.setText(name);
+//                description.setText(name + baseInfo);
+//                caregiverNo = contact_number;
+//
+//                view.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        Intent intent = new Intent(ViewVolunteerActivity.this,ViewDetails.class);
+//                        Log.d("testing", "here first");
+//                        intent.putExtra("name",name);
+//                        intent.putExtra("details",details);
+//                        intent.putExtra("caregiver",caretaker);
+//                        intent.putExtra("contact",contact_number);
+//                        intent.putExtra("unix_time",missing);
+//                        startActivity(intent);
+//                    }
+//                });
+
+                client_name.setText("No missing person detected");
+
+                Toast.makeText(getApplicationContext(), "Loaded page!", Toast.LENGTH_SHORT).show();
+
+
+
+
+            } else {
+                Toast.makeText(getBaseContext(), err, Toast.LENGTH_LONG).show();
+            }
+
+            pdLoading.dismiss();
+
+        }
+
+    }
 
 
 

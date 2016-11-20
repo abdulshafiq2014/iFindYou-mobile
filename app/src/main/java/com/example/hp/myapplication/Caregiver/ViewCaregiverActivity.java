@@ -56,6 +56,7 @@ public class ViewCaregiverActivity extends AppCompatActivity {
         contact_no_details = (TextView) findViewById(R.id.contact_no_details);
 
         Intent intent = getIntent();
+        final String userType = intent.getStringExtra("userType");
         uuid = intent.getStringExtra("uuid");
         String source = intent.getStringExtra("Source");
         if (source!=null){
@@ -126,6 +127,8 @@ public class ViewCaregiverActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(ViewCaregiverActivity.this, ViewVolunteerActivity.class);
+                i.putExtra("userType",userType);
+                i.putExtra("uuid",uuid);
                 startActivity(i);
                 finish();
             }

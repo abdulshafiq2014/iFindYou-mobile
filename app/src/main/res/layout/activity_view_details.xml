@@ -79,7 +79,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Last Seen At: Tampines Mrt Station"
+                android:text="Missing since 2014"
                 android:drawablePadding="8dp"
                 android:textSize="18sp"
                 android:gravity="center_vertical"
@@ -88,6 +88,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
+                android:id="@+id/missing_since"
                 />
 
         </LinearLayout>
@@ -141,7 +142,6 @@
                 android:id="@+id/caregiver_name"
                 android:gravity="center_vertical"
                 android:layout_weight="1"
-                android:layout_above="@+id/content_id"
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"/>
@@ -178,38 +178,7 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/caregiver_email"
-                android:layout_below="@+id/caregiver_contactno">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Email: wlisb0ss123@gmail.com"
-                    android:drawablePadding="8dp"
-                    android:textSize="18sp"
-                    android:id="@+id/email_txt"
-                    android:gravity="center_vertical"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginBottom="30dp"/>
-
-                <Button
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:background="@drawable/envelope"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginLeft="7dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginBottom="20dp"
-                    android:id="@+id/send_email"
-                    />
-
-            </LinearLayout>
 
 
 

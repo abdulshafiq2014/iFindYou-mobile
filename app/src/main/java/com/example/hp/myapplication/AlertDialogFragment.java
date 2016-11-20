@@ -21,8 +21,8 @@ public class AlertDialogFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.content_view_volunteer, container, false);
-        View tv = v.findViewById(R.id.content_id);
-        ((TextView)tv).setText("Found a beacon!");
+        //View tv = v.findViewById(R.id.content_id);
+        //((TextView)tv).setText("Found a beacon!");
         return v;
     }
 
