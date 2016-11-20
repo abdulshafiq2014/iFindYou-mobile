@@ -13,7 +13,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -29,6 +32,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +40,7 @@ import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.estimote.sdk.SystemRequirementsChecker;
+import com.estimote.sdk.Utils;
 import com.example.hp.myapplication.AlertDialogFragment;
 import com.example.hp.myapplication.Caregiver.ViewCaregiverActivity;
 import com.example.hp.myapplication.R;
@@ -57,6 +62,8 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,7 +83,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     public LocationRequest mLocationRequest;
     private Context activity;
     private String caregiverNo;
-    private TextView topBanner, client_name, description;
+    private TextView topBanner, client_name, description, distance;
     private String uuid;
     private String baseInfo = " is nearby and lost! Contact his caregiver immediately!";
     private String noAlert = "No missing people nearby";
@@ -89,6 +96,17 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     private int missing, unix_time;
     private boolean nearMissingPerson = false;
     private View view;
+    private String detectedBID;
+    private double detectedProximity;
+    private static final Utils.Proximity FAR = Utils.Proximity.FAR;
+    private static final Utils.Proximity IMMEDIATE = Utils.Proximity.IMMEDIATE;
+    private static final Utils.Proximity NEAR = Utils.Proximity.NEAR;
+    private LinearLayout dist_parent;
+    private LatLng myLocation;
+    private ArrayList<Circle> circleList;
+    private ArrayList<Circle> trackedList;
+
+    Geocoder geocoder;
 
 
     @Override
@@ -96,11 +114,16 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_view_volunteer);
         mContext = getApplication().getApplicationContext();
+
+        circleList = new ArrayList<>();
+        trackedList = new ArrayList<>();
+
         Intent intent = getIntent();
         final String userType = intent.getStringExtra("userType");
         uuid = intent.getStringExtra("uuid");
 
         topBanner = (TextView) findViewById(R.id.text_view);
+        geocoder = new Geocoder(this);
 
         checkLocationPermission();
         new getInformation().execute();
@@ -136,9 +159,12 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
 
         callBtn = (Button)findViewById(R.id.call_caregiver);
+        dist_parent = (LinearLayout) findViewById(R.id.dist_parent);
+        distance = (TextView)findViewById(R.id.distance);
 
         callBtn.setVisibility(view.GONE);
         description.setVisibility(view.GONE);
+        dist_parent.setVisibility(view.GONE);
 
 
 
@@ -206,7 +232,11 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
             public void onExitedRegion(Region region) {
                 // could add an "exit" notification too if you want (-:
                 Log.i("volact", "No moar beacon: ");
-                Toast.makeText(getApplicationContext(), "No moar beacon", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Beacon sign lost", Toast.LENGTH_SHORT).show();
+                //reset UI
+                callBtn.setVisibility(view.GONE);
+                description.setVisibility(view.GONE);
+                dist_parent.setVisibility(view.GONE);
             }
         });
         //connect to beacon if available
@@ -362,6 +392,14 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     public void onLocationChanged(Location location) {
 
         mMap.clear();
+        if (circleList!=null && circleList.size()>0){
+
+            for (Circle c:circleList){
+                c.remove();
+            }
+
+            circleList.clear();
+        }
 
 
 //
@@ -369,11 +407,12 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         Log.d("testing","location changed current latlng is : " + latLng);
 
+        myLocation = latLng;
 
         //move camera to marker
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        CameraPosition cmp = new CameraPosition(latLng, 20, 0, 0);
+        CameraPosition cmp = new CameraPosition(latLng, 25, 0, 0);
         drawCircle(latLng, 10);
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cmp));
 
@@ -447,6 +486,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
         callBtn.setVisibility(view.VISIBLE);
         description.setVisibility(view.VISIBLE);
+        dist_parent.setVisibility(view.VISIBLE);
 
         // User touched the dialog's positive button
         Toast.makeText(getApplicationContext(), "tracking", Toast.LENGTH_SHORT).show();
@@ -456,7 +496,90 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                 if (!list.isEmpty()) {
                     for (Beacon b: list){
                         Log.i("missingBeacon", "id: " + b.getProximityUUID() + " dist: " + b.getMeasuredPower());
+                        detectedBID = b.getProximityUUID().toString();
+
+
+
+                        switch (Utils.computeProximity(b)){
+                            case FAR:
+                                detectedProximity = 70;
+
+                                double estimatedDist = Utils.computeAccuracy(b);
+
+                                if (estimatedDist > 3){
+
+                                    if (estimatedDist <=15){
+                                        detectedProximity = 15;
+                                    } else{
+                                        if (estimatedDist > 15 && estimatedDist <= 30){
+                                            detectedProximity = 30;
+                                        } else {
+                                            if (estimatedDist > 30){
+                                                detectedProximity = estimatedDist;
+                                            }
+                                        }
+                                    }
+
+                                } else {
+                                    detectedProximity = 3;
+                                }
+
+                                break;
+                            case NEAR:
+                                detectedProximity = 3;
+                                break;
+                            case IMMEDIATE:
+                                detectedProximity = 1;
+                                break;
+
+                        }
+
+                        break;
                     }
+
+                    if (ContextCompat.checkSelfPermission(ViewVolunteerActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        // instantiate the location manager, note you will need to request permissions in your manifest
+                        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        // get the last know location from your location manager.
+                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                            return;
+                        }
+                        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); //doesnt seem to work
+                        Log.d("Print", "location data1 is : " + location);
+                        if (location == null) {
+                            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            Log.d("Print", "location data2 is : " + location);
+                            drawCircle(myLocation,(int) detectedProximity);
+                            distance.setText((int)detectedProximity+ "m away");
+                        } else{
+                            //List<Address> address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                            LatLng detectedLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                            //Log.d("Print", "address list size is : " + address.size());
+
+                            drawCircle(detectedLatLng,(int) detectedProximity);
+                            distance.setText((int)detectedProximity+ "m away");
+                        }
+
+
+
+
+
+                    }else{
+
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(ViewVolunteerActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                            //Prompt user once we show explanation
+                            ActivityCompat.requestPermissions(ViewVolunteerActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+
+                        } else {
+                            //No need to explain
+                            ActivityCompat.requestPermissions(ViewVolunteerActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+                        }
+                    }
+
+
+
                 }
             }
         });
@@ -504,6 +627,15 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
 
     private void drawCircle(LatLng point, int radius) {
+        //reset all circles
+        if (circleList!=null && circleList.size()>0){
+
+            for (Circle c:circleList){
+                c.remove();
+            }
+
+            circleList.clear();
+        }
 
         // Instantiating CircleOptions to draw a circle around the marker
         CircleOptions circleOptions = new CircleOptions();
@@ -525,6 +657,42 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
         // Adding the circle to the GoogleMap
         circle = mMap.addCircle(circleOptions);
+        circleList.add(circle);
+
+    }
+
+    private void drawOtherCircles(LatLng point, int radius) {
+        //reset all circles
+        if (circleList!=null && circleList.size()>0){
+
+            for (Circle c:circleList){
+                c.remove();
+            }
+
+            circleList.clear();
+        }
+
+        // Instantiating CircleOptions to draw a circle around the marker
+        CircleOptions circleOptions = new CircleOptions();
+
+        // Specifying the center of the circle
+        circleOptions.center(point);
+
+        // Radius of the circle
+        circleOptions.radius(radius);
+
+        // Border color of the circle
+        circleOptions.strokeColor(Color.MAGENTA);
+
+        // Fill color of the circle
+        circleOptions.fillColor(0x30bca4c1);
+
+        // Border width of the circle
+        circleOptions.strokeWidth(3);
+
+        // Adding the circle to the GoogleMap
+        circle = mMap.addCircle(circleOptions);
+        circleList.add(circle);
 
     }
 
