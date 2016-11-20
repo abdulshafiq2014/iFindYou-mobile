@@ -1,4 +1,4 @@
-package com.example.hp.myapplication.Caregiver;
+package com.example.hp.iFindYou.Caregiver;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -13,8 +13,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.hp.myapplication.R;
-import com.example.hp.myapplication.UtilHttp;
+import com.example.hp.iFindYou.R;
+import com.example.hp.iFindYou.UtilHttp;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,15 +1,13 @@
-package com.example.hp.myapplication.Volunteer;
+package com.example.hp.iFindYou.Volunteer;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -23,8 +21,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -36,10 +32,9 @@ import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.estimote.sdk.SystemRequirementsChecker;
-import com.example.hp.myapplication.AlertDialogFragment;
-import com.example.hp.myapplication.Caregiver.ViewCaregiverActivity;
-import com.example.hp.myapplication.R;
-import com.example.hp.myapplication.UtilHttp;
+import com.example.hp.iFindYou.Caregiver.ViewCaregiverActivity;
+import com.example.hp.iFindYou.R;
+import com.example.hp.iFindYou.UtilHttp;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -58,7 +53,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
-import java.util.UUID;
 
 public class ViewVolunteerActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
