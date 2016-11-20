@@ -1,4 +1,4 @@
-package com.example.hp.myapplication.Volunteer;
+package com.example.hp.iFindYou.Volunteer;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.hp.myapplication.R;
+import com.example.hp.iFindYou.R;
 
 import java.util.Date;
 

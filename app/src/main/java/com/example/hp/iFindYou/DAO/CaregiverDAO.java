@@ -1,4 +1,4 @@
-package com.example.hp.myapplication.DAO;
+package com.example.hp.iFindYou.DAO;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,23 +6,22 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.StringBuilderPrinter;
 
 import java.util.ArrayList;
 
 /**
- * Created by A.Shafiq Yussaini ^^ on 11/1/2016.
+ * Created by HP on 11/1/2016.
  */
 
-public class VolunteerDAO extends SQLiteOpenHelper {
+public class CaregiverDAO extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "iFindYou.db";
-    public static final String VOLUNTEER_COLUMN_ID = "id";
-    public static final String VOLUNTEER_COLUMN_NAME = "name";
-    public static final String VOLUNTEER_COLUMN_PHONE = "contactNo";
-    public static final String TABLE_NAME = "volunteer";
+    public static final String CAREGIVER_COLUMN_ID = "id";
+    public static final String CAREGIVER_COLUMN_NAME = "name";
+    public static final String CAREGIVER_COLUMN_PHONE = "contactNo";
+    public static final String TABLE_NAME = "caregiver";
 
-    public VolunteerDAO(Context context) {
+    public CaregiverDAO(Context context) {
         super(context, DATABASE_NAME , null, 1);
     }
 
@@ -39,7 +38,7 @@ public class VolunteerDAO extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean insertVolunteer  (String name, String contactNo) {
+    public boolean insertCaregiver  (String name, String contactNo) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("name", name);
@@ -60,7 +59,7 @@ public class VolunteerDAO extends SQLiteOpenHelper {
         return numRows;
     }
 
-    public boolean updateVolunteerInfo (Integer id, String name, String contactNo) {
+    public boolean updateCaregiverInfo (Integer id, String name, String contactNo) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("name", name);
@@ -69,18 +68,18 @@ public class VolunteerDAO extends SQLiteOpenHelper {
         return true;
     }
 
-    public Integer deleteVolunteer (Integer id) {
+    public Integer deleteCaregiver (Integer id) {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_NAME,
                 "id = ? ",
                 new String[] { Integer.toString(id) });
     }
 
-    public ArrayList<String> getAllVolunteers() {
+    public ArrayList<String> getAllCaregivers() {
         ArrayList<String> array_list = new ArrayList<String>();
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from contacts", null );
+        Cursor res =  db.rawQuery( "select * from " + TABLE_NAME, null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
@@ -90,5 +89,12 @@ public class VolunteerDAO extends SQLiteOpenHelper {
         return array_list;
     }
 
-
+//    public boolean assignClient  (Caregiver caregiver, Client client) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put("name", name);
+//        contentValues.put("contactNo", contactNo);
+//        db.insert(TABLE_NAME, null, contentValues);
+//        return true;
+//    }
 }

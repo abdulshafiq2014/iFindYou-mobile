@@ -1,12 +1,10 @@
-package com.example.hp.myapplication;
+package com.example.hp.iFindYou;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
@@ -18,9 +16,7 @@ import com.digits.sdk.android.Digits;
 import com.digits.sdk.android.DigitsAuthButton;
 import com.digits.sdk.android.DigitsException;
 import com.digits.sdk.android.DigitsSession;
-import com.example.hp.myapplication.Caregiver.ViewCaregiverActivity;
-import com.example.hp.myapplication.Volunteer.ViewDetails;
-import com.example.hp.myapplication.Volunteer.ViewVolunteerActivity;
+import com.example.hp.iFindYou.Volunteer.ViewVolunteerActivity;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 

@@ -1,4 +1,4 @@
-package com.example.hp.myapplication;
+package com.example.hp.iFindYou;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

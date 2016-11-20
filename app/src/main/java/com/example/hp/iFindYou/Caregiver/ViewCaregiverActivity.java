@@ -1,11 +1,9 @@
-package com.example.hp.myapplication.Caregiver;
+package com.example.hp.iFindYou.Caregiver;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -15,13 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.estimote.sdk.internal.utils.L;
-import com.estimote.sdk.repackaged.gson_v2_3_1.com.google.gson.Gson;
-import com.example.hp.myapplication.R;
-import com.example.hp.myapplication.UtilHttp;
-import com.example.hp.myapplication.Volunteer.ViewVolunteerActivity;
+import com.example.hp.iFindYou.R;
+import com.example.hp.iFindYou.UtilHttp;
+import com.example.hp.iFindYou.Volunteer.ViewVolunteerActivity;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 

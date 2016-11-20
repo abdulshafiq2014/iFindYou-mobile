@@ -1,4 +1,4 @@
-package com.example.hp.myapplication.DAO;
+package com.example.hp.iFindYou.DAO;
 
 import android.content.ContentValues;
 import android.content.Context;

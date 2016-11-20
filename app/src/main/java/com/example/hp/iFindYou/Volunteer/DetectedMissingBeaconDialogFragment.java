@@ -1,4 +1,4 @@
-package com.example.hp.myapplication.Volunteer;
+package com.example.hp.iFindYou.Volunteer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -6,8 +6,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-
-import com.example.hp.myapplication.R;
 
 /**
  * Created by chongcher on 19/11/2016.

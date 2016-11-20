@@ -1,4 +1,4 @@
-package com.example.hp.myapplication;
+package com.example.hp.iFindYou;
 
 import android.content.Context;
 import android.util.Log;
