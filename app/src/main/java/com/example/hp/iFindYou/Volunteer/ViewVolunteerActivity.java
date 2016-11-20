@@ -1,4 +1,4 @@
-package com.example.hp.myapplication.Volunteer;
+package com.example.hp.iFindYou.Volunteer;
 
 import android.Manifest;
 import android.app.Activity;
@@ -13,7 +13,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -29,6 +31,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,9 +39,11 @@ import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.estimote.sdk.SystemRequirementsChecker;
+import com.estimote.sdk.Utils;
 import com.example.hp.iFindYou.Caregiver.ViewCaregiverActivity;
 import com.example.hp.iFindYou.R;
 import com.example.hp.iFindYou.UtilHttp;
+import com.example.hp.iFindYou.Volunteer.DetectedMissingBeaconDialogFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
