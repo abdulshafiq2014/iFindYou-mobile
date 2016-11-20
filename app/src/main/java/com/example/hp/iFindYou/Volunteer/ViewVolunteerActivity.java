@@ -1,13 +1,15 @@
-package com.example.hp.iFindYou.Volunteer;
+package com.example.hp.myapplication.Volunteer;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -21,6 +23,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -49,10 +53,17 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class ViewVolunteerActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -70,7 +81,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     public LocationRequest mLocationRequest;
     private Context activity;
     private String caregiverNo;
-    private TextView topBanner, client_name, description;
+    private TextView topBanner, client_name, description, distance;
     private String uuid;
     private String baseInfo = " is nearby and lost! Contact his caregiver immediately!";
     private String noAlert = "No missing people nearby";
@@ -83,6 +94,18 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     private int missing, unix_time;
     private boolean nearMissingPerson = false;
     private View view;
+    private String detectedBID;
+    private double detectedProximity;
+    private static final Utils.Proximity FAR = Utils.Proximity.FAR;
+    private static final Utils.Proximity IMMEDIATE = Utils.Proximity.IMMEDIATE;
+    private static final Utils.Proximity NEAR = Utils.Proximity.NEAR;
+    private LinearLayout dist_parent;
+    private LatLng myLocation;
+    private ArrayList<Circle> circleList;
+    private ArrayList<ArrayList<Integer>> trackedList;
+    private static HashMap<LatLng,Long> pulledList;
+
+    Geocoder geocoder;
 
 
     @Override
@@ -90,11 +113,19 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_view_volunteer);
         mContext = getApplication().getApplicationContext();
+
+        circleList = new ArrayList<>();
+        trackedList = new ArrayList<>();
+        pulledList = new HashMap<>();
+
         Intent intent = getIntent();
         final String userType = intent.getStringExtra("userType");
         uuid = intent.getStringExtra("uuid");
 
         topBanner = (TextView) findViewById(R.id.text_view);
+        geocoder = new Geocoder(this);
+
+
 
         checkLocationPermission();
         new getInformation().execute();
@@ -130,9 +161,12 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
 
         callBtn = (Button)findViewById(R.id.call_caregiver);
+        dist_parent = (LinearLayout) findViewById(R.id.dist_parent);
+        distance = (TextView)findViewById(R.id.distance);
 
         callBtn.setVisibility(view.GONE);
         description.setVisibility(view.GONE);
+        dist_parent.setVisibility(view.GONE);
 
 
 
@@ -200,7 +234,11 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
             public void onExitedRegion(Region region) {
                 // could add an "exit" notification too if you want (-:
                 Log.i("volact", "No moar beacon: ");
-                Toast.makeText(getApplicationContext(), "No moar beacon", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Beacon sign lost", Toast.LENGTH_SHORT).show();
+                //reset UI
+                callBtn.setVisibility(view.GONE);
+                description.setVisibility(view.GONE);
+                dist_parent.setVisibility(view.GONE);
             }
         });
         //connect to beacon if available
@@ -356,18 +394,27 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     public void onLocationChanged(Location location) {
 
         mMap.clear();
+        if (circleList!=null && circleList.size()>0){
+
+            for (Circle c:circleList){
+                c.remove();
+            }
+
+            circleList.clear();
+        }
 
 
 //
         // Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        Log.d("testing","location changed current latlng is : " + latLng);
+        Log.d("testing","location changed current latlng is : " + latLng.toString());
 
+        myLocation = latLng;
 
         //move camera to marker
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        CameraPosition cmp = new CameraPosition(latLng, 20, 0, 0);
+        CameraPosition cmp = new CameraPosition(latLng, 25, 0, 0);
         drawCircle(latLng, 10);
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cmp));
 
@@ -441,20 +488,129 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
         callBtn.setVisibility(view.VISIBLE);
         description.setVisibility(view.VISIBLE);
+        dist_parent.setVisibility(view.VISIBLE);
 
         // User touched the dialog's positive button
         Toast.makeText(getApplicationContext(), "tracking", Toast.LENGTH_SHORT).show();
+
+        final int[] counter = {0};
+
         beaconManager.setRangingListener(new BeaconManager.RangingListener() {
             @Override
             public void onBeaconsDiscovered(Region region, List<Beacon> list) {
                 if (!list.isEmpty()) {
+
                     for (Beacon b: list){
                         Log.i("missingBeacon", "id: " + b.getProximityUUID() + " dist: " + b.getMeasuredPower());
+                        String uuid= b.getProximityUUID().toString();
+
+                        if (uuid.equals("b9407f30-f5f8-466e-aff9-25556b57fe6d")){
+                            detectedBID = "797402778773489664";
+                        } else if (uuid.equals("d4eec43ddb17403ebde7e33cba8f0a0d")){
+                            detectedBID = "797421778773489664";
+                        }
+
+                        Log.d("getit","before execution detectedBID : " + detectedBID);
+
+
+
+
+                        switch (Utils.computeProximity(b)){
+                            case FAR:
+                                detectedProximity = 70;
+
+                                double estimatedDist = Utils.computeAccuracy(b);
+
+                                if (estimatedDist > 3){
+
+                                    if (estimatedDist <=15){
+                                        detectedProximity = 15;
+                                    } else{
+                                        if (estimatedDist > 15 && estimatedDist <= 30){
+                                            detectedProximity = 30;
+                                        } else {
+                                            if (estimatedDist > 30){
+                                                detectedProximity = estimatedDist;
+                                            }
+                                        }
+                                    }
+
+                                } else {
+                                    detectedProximity = 3;
+                                }
+
+                                break;
+                            case NEAR:
+                                detectedProximity = 3;
+                                break;
+                            case IMMEDIATE:
+                                detectedProximity = 1;
+                                break;
+
+                        }
+
+                        break;
                     }
+
+                    Log.d("testing","detectedBID is : " + detectedBID);
+                    Log.d("testing","detected gps_lat_long is : " + myLocation.latitude + "," + myLocation.longitude);
+
+                    new storeTrackedBeacon().execute();
+
+                    if (counter[0] <1){
+                        new getLatestBeaconLocationList().execute();
+                    }
+                    counter[0]++;
+
+
+                    if (ContextCompat.checkSelfPermission(ViewVolunteerActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        // instantiate the location manager, note you will need to request permissions in your manifest
+                        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        // get the last know location from your location manager.
+                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                            return;
+                        }
+                        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); //doesnt seem to work
+                        Log.d("Print", "location data1 is : " + location);
+                        if (location == null) {
+                            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            Log.d("Print", "location data2 is : " + location);
+                            drawCircle(myLocation,(int) detectedProximity);
+                            distance.setText((int)detectedProximity+ "m away");
+                        } else{
+                            //List<Address> address = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                            LatLng detectedLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                            //Log.d("Print", "address list size is : " + address.size());
+
+                            drawCircle(detectedLatLng,(int) detectedProximity);
+                            distance.setText((int)detectedProximity+ "m away");
+                        }
+
+                        Log.d("testing","latlng toString is : " + myLocation.toString());
+
+
+
+                    }else{
+
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(ViewVolunteerActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                            //Prompt user once we show explanation
+                            ActivityCompat.requestPermissions(ViewVolunteerActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+
+                        } else {
+                            //No need to explain
+                            ActivityCompat.requestPermissions(ViewVolunteerActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+                        }
+                    }
+
+
+
                 }
             }
         });
         beaconManager.startRanging(region);
+
 
         client_name.setText(name);
         description.setText(name + baseInfo);
@@ -498,6 +654,15 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
 
     private void drawCircle(LatLng point, int radius) {
+        //reset all circles
+        if (circleList!=null && circleList.size()>0){
+
+            for (Circle c:circleList){
+                c.remove();
+            }
+
+            circleList.clear();
+        }
 
         // Instantiating CircleOptions to draw a circle around the marker
         CircleOptions circleOptions = new CircleOptions();
@@ -519,6 +684,26 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
         // Adding the circle to the GoogleMap
         circle = mMap.addCircle(circleOptions);
+        circleList.add(circle);
+
+    }
+
+    private void drawOtherCircles(LatLng point, int radius) {
+
+        ArrayList<Integer> temp = new ArrayList<>();
+
+        //reset all circles
+        if (trackedList!=null && trackedList.size()>0){
+
+            trackedList.clear();
+        }
+
+
+        // Adding the circle to the GoogleMap
+        temp.add((int) point.latitude);
+        temp.add((int) point.longitude);
+        temp.add(radius);
+        trackedList.add(temp);
 
     }
 
@@ -598,24 +783,6 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
             if (result){
                 pdLoading.dismiss();
 
-//                client_name.setText(name);
-//                description.setText(name + baseInfo);
-//                caregiverNo = contact_number;
-//
-//                view.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        Intent intent = new Intent(ViewVolunteerActivity.this,ViewDetails.class);
-//                        Log.d("testing", "here first");
-//                        intent.putExtra("name",name);
-//                        intent.putExtra("details",details);
-//                        intent.putExtra("caregiver",caretaker);
-//                        intent.putExtra("contact",contact_number);
-//                        intent.putExtra("unix_time",missing);
-//                        startActivity(intent);
-//                    }
-//                });
-
                 client_name.setText("No missing person detected");
 
                 Toast.makeText(getApplicationContext(), "Loaded page!", Toast.LENGTH_SHORT).show();
@@ -632,6 +799,299 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
         }
 
     }
+
+
+
+    //stores and updates the latest approximated location of the tracked beacon
+    private class storeTrackedBeacon extends AsyncTask<Object, Object, Boolean> {
+        ProgressDialog pdLoading = new ProgressDialog(ViewVolunteerActivity.this);
+        boolean success = false;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            //this method will be running on UI thread
+            //pdLoading.setMessage("Updating information...");
+            //pdLoading.show();
+        }
+        @Override
+        protected Boolean doInBackground(Object... params) {
+
+            //form JSON object to post
+            JSONObject jsoin = null;
+
+            Long tsLong = System.currentTimeMillis()/1000;
+            String ts = tsLong.toString();
+            Log.d("testing","the timestamp value is : " + ts);
+
+            try {
+
+                jsoin = new JSONObject();
+                jsoin.put("beacon_id", detectedBID);
+                jsoin.put("gps_lat_long", myLocation.latitude + "," + myLocation.longitude);
+                jsoin.put("date_time", tsLong);
+
+
+            } catch (JSONException e){
+                e.printStackTrace();
+                err = e.getMessage();
+            }
+
+
+            //bID = "797402778773489664";
+            //this method will be running on background thread so don't update UI frome here
+            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
+            String url = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/interactions";
+
+            String rst = UtilHttp.doHttpPostJson(getApplication().getApplicationContext(),url,jsoin.toString());
+            if (rst == null) {
+                err = UtilHttp.err;
+            } else {
+                success = true;
+                Log.d("testing", "success!");
+
+            }
+            return success;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+
+            //this method will be running on UI thread
+            if (result){
+
+                //store into db
+                //no need any action for now
+
+            } else {
+                //Toast.makeText(getBaseContext(), err, Toast.LENGTH_LONG).show();
+                Log.d("testing","the error is : " + err);
+            }
+
+        }
+
+    }
+
+
+    //returns last 10 mins and list of all the latest timestamps of the detected/tracked beacon
+    private class getLatestBeaconLocationList extends AsyncTask<Object, Object, Boolean> {
+        ProgressDialog pdLoading = new ProgressDialog(ViewVolunteerActivity.this);
+
+        boolean success = false;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            //this method will be running on UI thread
+            //pdLoading.setMessage("Updating information...");
+            //pdLoading.show();
+
+        }
+        @Override
+        protected Boolean doInBackground(Object... params) {
+
+
+            //bID = "797402778773489664";
+            //this method will be running on background thread so don't update UI frome here
+            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
+            String url = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/interactions/" + detectedBID;
+            //String sbx = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/interactions/797402778773489664";
+            //Log.d("getit","for now the detectedBID is 1234567: " + detectedBID);
+            String rst = UtilHttp.doHttpGet(getApplication().getApplicationContext(),url);
+            if (rst == null) {
+                err = UtilHttp.err;
+                //Log.d("getit","YOYOYYO WTFFTFTFTFTF");
+            } else {
+                //Log.d("getit","YOYOYYO AJBGKBAJBSGKABB the value for rst is : " + rst);
+                JSONArray jsoArray = null;
+                try {
+                    jsoArray = new JSONArray(rst);
+                    //Log.d("getit","YOYOYYO now the jsoArray is : " + jsoArray);
+                    if (jsoArray!=null){
+                        for (int i = 0; i < jsoArray.length(); i++) {
+                            JSONObject jso = jsoArray.getJSONObject(i);
+
+                            long timestamp = jso.getLong("date_time");
+                            String DBLatLng = jso.getString("gps_lat_long");
+                            Log.d("pulledList","DBLatLng is : " + DBLatLng);
+
+                            String[] parts = DBLatLng.split(",");
+                            String lat = parts[0]; // 004
+                            String lng = parts[1]; // 034556
+
+                            Log.d("pulledList","lat is : " + lat);
+                            Log.d("pulledList","lng is : " + lng);
+
+                            double transLat = Double.parseDouble(lat);
+                            double transLng = Double.parseDouble(lng);
+
+                            Log.d("pulledList","transLat is : " + transLat);
+                            Log.d("pulledList","transLng is : " + transLng);
+
+                            LatLng compiledLatLng = new LatLng(transLat,transLng);
+                            Log.d("pulledList","compiledLatLng is : " + pulledList.get(compiledLatLng));
+
+                            if (pulledList.size() == 0){
+                                pulledList.put(compiledLatLng,timestamp);
+                                Log.d("getit", "pulledList size is 67890: " + pulledList.size());
+                            } else {
+                                Log.d("getit", "pulledList size more than zero: " + pulledList.size());
+                                Log.d("getit", "boolean is : " + (pulledList.get(compiledLatLng) == null));
+                                if (pulledList.get(compiledLatLng) == null){
+                                    pulledList.put(compiledLatLng,timestamp);
+                                    Log.d("getit", "pulledList size is 12345: " + pulledList.size());
+                                }
+                            }
+
+//                            tetsing purposes
+
+
+
+//                            Log.d("getit", "pulledList size is : " + pulledList.toString());
+                        }
+
+                        Iterator it = pulledList.entrySet().iterator();
+                        int count = 0;
+                        while (it.hasNext()) {
+                            Map.Entry pair = (Map.Entry)it.next();
+                            Log.d("getit","pair.getKey() is : " + pair.getKey());
+                            Log.d("getit","pair.getValue() is : " + pair.getValue());
+
+                            if (count <= 3){
+                                drawOtherCircles((LatLng) pair.getKey(),(int)detectedProximity);
+                                count++;
+                                Log.d("trackedList","count is now : " + count);
+
+                                if (trackedList.size()==3){
+                                    findCenter();
+                                }
+
+                            }
+
+
+
+                            it.remove(); // avoids a ConcurrentModificationException
+                        }
+
+
+                        Log.d("getit", "jsoarray is not null!" );
+                    } else {
+                        Log.d("getit", "jsoarray is null!" );
+                    }
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d("getit","there is an error which is : " + e.toString());
+                }
+
+
+                success = true;
+
+
+            }
+            return success;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+
+            //this method will be running on UI thread
+            if (result){
+                Log.d("trackedList","trackedList size on post execute is : " + trackedList.size());
+                if (trackedList.size()==3){
+                    findCenter();
+                }
+
+                //store into db
+                //no need any action for now
+
+            } else {
+                //Toast.makeText(getBaseContext(), err, Toast.LENGTH_LONG).show();
+                Log.d("getit","the error is : " + err);
+            }
+
+        }
+
+    }
+
+    private void findCenter() {
+        int top = 0;
+        int bot = 0;
+        Log.d("trackedList","trackedList size is now : " + trackedList.size());
+        for (int i=0; i<3; i++) {
+            ArrayList<Integer> c = trackedList.get(i);
+            ArrayList<Integer> c2;
+            ArrayList<Integer> c3;
+            if (i==0) {
+                c2 = trackedList.get(1);
+                c3 = trackedList.get(2);
+            }
+            else if (i==1) {
+                c2 = trackedList.get(0);
+                c3 = trackedList.get(2);
+            }
+            else {
+                c2 = trackedList.get(0);
+                c3 = trackedList.get(1);
+            }
+
+            float d = c2.get(0) - c3.get(0);
+
+            float v1 = (c.get(0) * c.get(0) + c.get(1) * c.get(1)) - (c.get(2) * c.get(2));
+            top += d*v1;
+
+            float v2 = c.get(1) * d;
+            bot += v2;
+
+        }
+
+        int y = top / (2*bot);
+        ArrayList<Integer> c1 = trackedList.get(0);
+        ArrayList<Integer> c2 = trackedList.get(1);
+        top = (int) (c2.get(2)*c2.get(2)+c1.get(0)*c1.get(0)
+                        +c1.get(1)*c1.get(1)-c1.get(2)*c1.get(2)
+                        -c2.get(0)*c2.get(0)-c2.get(1)*c2.get(1)-2*(c1.get(1)-c2.get(1))*y);
+        bot = (int) (c1.get(0)-c2.get(0));
+        int x = top / (2*bot);
+
+        Log.d("findCenter", "findCenter lat : " + x);
+        Log.d("findCenter", "findCenter lng : " + y);
+        Log.d("findCenter", "findCenter radius : " + 5);
+
+
+                // Instantiating CircleOptions to draw a circle around the marker
+        CircleOptions circleOptions = new CircleOptions();
+
+        // Specifying the center of the circle
+        circleOptions.center(new LatLng(x,y));
+
+        // Radius of the circle
+        circleOptions.radius(5);
+
+        // Border color of the circle
+        circleOptions.strokeColor(Color.RED);
+
+        // Fill color of the circle
+        circleOptions.fillColor(0x30ff0000);
+
+        // Border width of the circle
+        circleOptions.strokeWidth(3);
+
+        // Adding the circle to the GoogleMap
+        Circle imHere = mMap.addCircle(circleOptions);
+        circleList.add(imHere);
+
+        CameraPosition cmp = new CameraPosition(new LatLng(x,y), 25, 0, 0);
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cmp));
+
+    }
+
 
 
 
