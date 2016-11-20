@@ -29,7 +29,7 @@ public class UpdateAtRiskInformation extends AppCompatActivity {
     private int missing;
     private String name;
     private String uuid;
-    private String bID;
+    private String bID, userType;
 
     private EditText pid_name, last_seen_text, description_box, contact_no_details;
     private TextView is_missing;
@@ -41,6 +41,14 @@ public class UpdateAtRiskInformation extends AppCompatActivity {
         Intent intent = getIntent();
         uuid = intent.getStringExtra("uuid");
         bID = intent.getStringExtra("bID");
+        userType = intent.getStringExtra("userType");
+        String originName = intent.getStringExtra("name");
+        String originContact_number = intent.getStringExtra("contact_number");
+        String originDetails = intent.getStringExtra("details");
+        //String originLast_seen = intent.getStringExtra("last_seen");
+
+
+
 
         updateBtn = (Button) findViewById(R.id.cfm_update);
         pid_name = (EditText)findViewById(R.id.pid_name);
@@ -48,6 +56,11 @@ public class UpdateAtRiskInformation extends AppCompatActivity {
         description_box = (EditText) findViewById(R.id.description_box);
         contact_no_details = (EditText) findViewById(R.id.contact_no_details);
         is_missing = (TextView) findViewById(R.id.is_missing);
+
+        //display existing information
+        pid_name.setText(originName);
+        description_box.setText(originDetails);
+        contact_no_details.setText(originContact_number);
 
         updateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,11 +153,8 @@ public class UpdateAtRiskInformation extends AppCompatActivity {
 //                details
 //                missing
                 i.putExtra("Source", "UpdateAtRiskInformation");
-                i.putExtra("name",name);
-                i.putExtra("caretaker","793319548489392128");
-                i.putExtra("details",details);
-                i.putExtra("missing",missing);
                 i.putExtra("uuid",uuid);
+                i.putExtra("userType",userType);
 
                 startActivity(i);
                 finish();

@@ -32,7 +32,7 @@ public class ViewCaregiverActivity extends AppCompatActivity {
     Button backBtn;
     String err;
     private String bID;
-    String uuid;
+    private String uuid, userType;
 
     int missing;
     String caretaker, name, contact_number,details, beacon_id;
@@ -56,11 +56,12 @@ public class ViewCaregiverActivity extends AppCompatActivity {
         contact_no_details = (TextView) findViewById(R.id.contact_no_details);
 
         Intent intent = getIntent();
-        final String userType = intent.getStringExtra("userType");
+        userType = intent.getStringExtra("userType");
         uuid = intent.getStringExtra("uuid");
         String source = intent.getStringExtra("Source");
         if (source!=null){
             if (source.equals("UpdateAtRiskInformation")){
+
                 new getInformation().execute();
 
             } else if (source.equals("RaiseAlert")){
@@ -117,6 +118,14 @@ public class ViewCaregiverActivity extends AppCompatActivity {
                 Intent i = new Intent(ViewCaregiverActivity.this, UpdateAtRiskInformation.class);
                 i.putExtra("uuid",uuid);
                 i.putExtra("bID",bID);
+                i.putExtra("userType",userType);
+                i.putExtra("name",name);
+                //i.putExtra("last seen",name);
+                i.putExtra("details",details);
+                i.putExtra("contact_number",contact_number);
+
+
+
                 Toast.makeText(getApplicationContext(), "Going to edit information page...", Toast.LENGTH_SHORT).show();
                 startActivity(i);
                 finish();
@@ -192,7 +201,7 @@ public class ViewCaregiverActivity extends AppCompatActivity {
 
                 i.putExtra("Source", "RaiseAlert");
                 i.putExtra("uuid",uuid);
-
+                i.putExtra("userType",userType);
                 startActivity(i);
                 finish();
             } else {
