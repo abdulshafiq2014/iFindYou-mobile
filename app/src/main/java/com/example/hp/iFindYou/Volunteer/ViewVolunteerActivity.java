@@ -965,10 +965,10 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                             Log.d("getit","pair.getKey() is : " + pair.getKey());
                             Log.d("getit","pair.getValue() is : " + pair.getValue());
 
-                            if (count <= 3){
+                            if (trackedList.size() <= 3){
                                 drawOtherCircles((LatLng) pair.getKey(),(int)detectedProximity);
                                 count++;
-                                Log.d("trackedList","count is now : " + count);
+                                Log.d("trackedList","trackedList.size() is now : " + trackedList.size());
 
                                 if (trackedList.size()==3){
                                     findCenter();
@@ -1028,7 +1028,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     private void findCenter() {
         int top = 0;
         int bot = 0;
-        Log.d("trackedList","trackedList size is now : " + trackedList.size());
+        Log.d("findCenter","trackedList size is now : " + trackedList.size());
         for (int i=0; i<3; i++) {
             ArrayList<Integer> c = trackedList.get(i);
             ArrayList<Integer> c2;
@@ -1083,7 +1083,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
         circleOptions.strokeColor(Color.RED);
 
         // Fill color of the circle
-        circleOptions.fillColor(0x30ff0000);
+        circleOptions.fillColor(Color.RED);
 
         // Border width of the circle
         circleOptions.strokeWidth(3);

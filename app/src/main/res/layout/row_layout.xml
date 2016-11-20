@@ -13,7 +13,7 @@
 
     <TextView
         android:id="@+id/client_name"
-        android:text="NAME OF CLIENT"
+        android:text="No missing person detected"
         android:textStyle="bold"
         android:layout_width="match_parent"
         android:layout_height="35dp"
@@ -46,18 +46,17 @@
         ></View>
 
     <Button
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:gravity="center"
-        android:layout_marginTop="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginBottom="30dp"
-        android:layout_marginLeft="30dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
         android:layout_alignRight="@+id/client_name"
         android:background="@drawable/phone_call"
-        android:text="CALL"
         android:textStyle="bold"
         android:textColor="@color/darkGreen"
         android:id="@+id/call_caregiver"/>
