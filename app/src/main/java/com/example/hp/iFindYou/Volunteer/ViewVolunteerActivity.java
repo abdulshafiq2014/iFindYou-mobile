@@ -1042,7 +1042,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
 
     private class getInformationFromBeacon extends AsyncTask<String, Object, Boolean> {
-        ProgressDialog pdLoading = new ProgressDialog(ViewVolunteerActivity.this);
+        //ProgressDialog pdLoading = new ProgressDialog(ViewVolunteerActivity.this);
         boolean success = false;
         String beacon;
 
@@ -1051,8 +1051,8 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
             super.onPreExecute();
 
             //this method will be running on UI thread
-            pdLoading.setMessage("Updating information...");
-            pdLoading.show();
+//            pdLoading.setMessage("Updating information...");
+//            pdLoading.show();
         }
         @Override
         protected Boolean doInBackground(String... params) {
@@ -1113,7 +1113,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
             //this method will be running on UI thread
             if (result){
-                pdLoading.dismiss();
+                //pdLoading.dismiss();
 
                 if(!onAlertList){ // TODO check if beacon UUID is NOT on the alert list && user allows interaction data to be recorded
                     Log.i("volact", "Beginning normal beacon interaction test:" + beacon);
@@ -1141,7 +1141,8 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                 Toast.makeText(getBaseContext(), err, Toast.LENGTH_LONG).show();
             }
 
-            pdLoading.dismiss();
+
+            //pdLoading.dismiss();
 
         }
 
