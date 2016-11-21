@@ -1057,20 +1057,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
         @Override
         protected Boolean doInBackground(String... params) {
             //form JSON object to post
-            JSONObject jsoin = null;
             beacon = params[0];
-
-            try {
-
-                jsoin = new JSONObject();
-                Log.d("testing","uuid is : " + uuid);
-                jsoin.put("caretaker_uuid", uuid);
-
-
-            } catch (JSONException e){
-                e.printStackTrace();
-                err = e.getMessage();
-            }
 
 
             //this method will be running on background thread so don't update UI frome here
@@ -1078,7 +1065,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
             String url = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/beacons/" + beacon;
 
 
-            String rst = UtilHttp.doHttpPostJson(getApplication().getApplicationContext(),url,jsoin.toString());
+            String rst = UtilHttp.doHttpGet(getApplication().getApplicationContext(),url);
             if (rst == null) {
                 err = UtilHttp.err;
             } else {
