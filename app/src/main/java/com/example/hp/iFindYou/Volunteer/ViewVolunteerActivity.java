@@ -109,6 +109,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     private ArrayList<Circle> circleList;
     private ArrayList<ArrayList<Integer>> trackedList;
     private static HashMap<LatLng,Long> pulledList;
+    boolean onAlertList = false;
 
     Geocoder geocoder;
 
@@ -133,7 +134,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
 
         checkLocationPermission();
-        new getInformation().execute();
+
 
         if(userType.equals("caretaker")){
             topBanner.setText("Click to go to caregiver page");
@@ -147,6 +148,9 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                         finish();
                 }
             });
+
+            //this is getting information for caretaker accounts
+            new getInformation().execute();
         } else {
             topBanner.setText("Welcome to the volunteer page!");
         }
@@ -218,20 +222,20 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
         beaconManager.setMonitoringListener(new BeaconManager.MonitoringListener() {
             @Override
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
+
                 for(Beacon beacon : beacons){
                     Log.i("volact","Siao liao. Got beacon liao");
                     String beaconUuid = "" + beacon.getProximityUUID(); // TODO get missing person name from DB?
                     // assume that all beacons now are on the alert list
-                    if(!true && false){ // TODO check if beacon UUID is NOT on the alert list && user allows interaction data to be recorded
-                        Log.i("volact", "Beginning normal beacon interaction test:" + beaconUuid);
-                        // TODO upload interaction data to server
-                    } else if (true) { //TODO check if beacon UUID is on the alert list
-                        Log.i("volact", "Beginning missing beacon interaction test: " + beaconUuid);
-                        //showNotification( "Found a beacon!", "BeaconID: " + beaconUuid);
-                        // TODO alert user to this situation
-                        DialogFragment missingAlert = new DetectedMissingBeaconDialogFragment();
-                        missingAlert.show(getFragmentManager(), "missingAlert");
-                        // TODO turn on ranging for this beacon
+
+                    if (beaconUuid.equals("b9407f30-f5f8-466e-aff9-25556b57fe6d")){
+                        detectedBID = "797402778773489664";
+                        new getInformationFromBeacon().execute(detectedBID);
+                    } else if (uuid.equals("d4eec43ddb17403ebde7e33cba8f0a0d")){
+                        beaconUuid = "797421778773489664";
+                        new getInformationFromBeacon().execute(detectedBID);
+                    } else {
+                        onAlertList = false;
                     }
                 }
             }
@@ -560,7 +564,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                     Log.d("testing","detectedBID is : " + detectedBID);
                     Log.d("testing","detected gps_lat_long is : " + myLocation.latitude + "," + myLocation.longitude);
 
-                    new storeTrackedBeacon().execute();
+                    new storeTrackedBeacon().execute(detectedBID);
 
                     if (counter[0] <1){
                         new getLatestBeaconLocationList().execute();
@@ -746,6 +750,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
             //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
             String url = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/beacons/";
 
+
             String rst = UtilHttp.doHttpPostJson(getApplication().getApplicationContext(),url,jsoin.toString());
             if (rst == null) {
                 err = UtilHttp.err;
@@ -767,6 +772,13 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
                     Log.d("testing", "or here first ???");
                     Log.d("testing", "or here first ??? details is : " + details);
+
+                    if (missing > -1){
+                        onAlertList = true;
+                    } else {
+                        onAlertList = false;
+                    }
+
                     success = true;
 
                 } catch (JSONException e){
@@ -808,9 +820,10 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
 
     //stores and updates the latest approximated location of the tracked beacon
-    private class storeTrackedBeacon extends AsyncTask<Object, Object, Boolean> {
+    private class storeTrackedBeacon extends AsyncTask<String, Object, Boolean> {
         ProgressDialog pdLoading = new ProgressDialog(ViewVolunteerActivity.this);
         boolean success = false;
+        String beacon;
 
         @Override
         protected void onPreExecute() {
@@ -821,10 +834,11 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
             //pdLoading.show();
         }
         @Override
-        protected Boolean doInBackground(Object... params) {
+        protected Boolean doInBackground(String... params) {
 
             //form JSON object to post
             JSONObject jsoin = null;
+            beacon = params[0];
 
             Long tsLong = System.currentTimeMillis()/1000;
             String ts = tsLong.toString();
@@ -833,7 +847,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
             try {
 
                 jsoin = new JSONObject();
-                jsoin.put("beacon_id", detectedBID);
+                jsoin.put("beacon_id", beacon);
                 jsoin.put("gps_lat_long", myLocation.latitude + "," + myLocation.longitude);
                 jsoin.put("date_time", tsLong);
 
@@ -881,10 +895,11 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
 
     //returns last 10 mins and list of all the latest timestamps of the detected/tracked beacon
-    private class getLatestBeaconLocationList extends AsyncTask<Object, Object, Boolean> {
+    private class getLatestBeaconLocationList extends AsyncTask<String, Object, Boolean> {
         ProgressDialog pdLoading = new ProgressDialog(ViewVolunteerActivity.this);
 
         boolean success = false;
+        String beacon;
 
         @Override
         protected void onPreExecute() {
@@ -896,13 +911,13 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
         }
         @Override
-        protected Boolean doInBackground(Object... params) {
-
+        protected Boolean doInBackground(String... params) {
+            beacon = params[0];
 
             //bID = "797402778773489664";
             //this method will be running on background thread so don't update UI frome here
             //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
-            String url = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/interactions/" + detectedBID;
+            String url = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/interactions/" + beacon;
             //String sbx = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/interactions/797402778773489664";
             //Log.d("getit","for now the detectedBID is 1234567: " + detectedBID);
             String rst = UtilHttp.doHttpGet(getApplication().getApplicationContext(),url);
@@ -1024,6 +1039,127 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
         }
 
     }
+
+
+    private class getInformationFromBeacon extends AsyncTask<String, Object, Boolean> {
+        ProgressDialog pdLoading = new ProgressDialog(ViewVolunteerActivity.this);
+        boolean success = false;
+        String beacon;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            //this method will be running on UI thread
+            pdLoading.setMessage("Updating information...");
+            pdLoading.show();
+        }
+        @Override
+        protected Boolean doInBackground(String... params) {
+            //form JSON object to post
+            JSONObject jsoin = null;
+            beacon = params[0];
+
+            try {
+
+                jsoin = new JSONObject();
+                Log.d("testing","uuid is : " + uuid);
+                jsoin.put("caretaker_uuid", uuid);
+
+
+            } catch (JSONException e){
+                e.printStackTrace();
+                err = e.getMessage();
+            }
+
+
+            //this method will be running on background thread so don't update UI frome here
+            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
+            String url = "https://tw9fnomwqe.execute-api.ap-southeast-1.amazonaws.com/dev/beacons/" + beacon;
+
+
+            String rst = UtilHttp.doHttpPostJson(getApplication().getApplicationContext(),url,jsoin.toString());
+            if (rst == null) {
+                err = UtilHttp.err;
+            } else {
+
+                Log.d("check",rst.toString());
+
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(rst);
+
+                    missing = jsonObject.getInt("missing");
+                    caretaker = jsonObject.getString("caretaker");
+                    name = jsonObject.getString("name");
+                    contact_number = jsonObject.getString("contact_number");
+                    details = jsonObject.getString("details");
+                    beacon_id = jsonObject.getString("beacon_id");
+
+
+                    Log.d("testing", "or here first ???");
+                    Log.d("testing", "or here first ??? details is : " + details);
+
+                    if (missing > -1){
+                        onAlertList = true;
+
+                    } else {
+                        onAlertList = false;
+                    }
+
+                    success = true;
+
+                } catch (JSONException e){
+                    e.printStackTrace();
+                    err = e.toString();
+                    Log.d("check","here");
+                    success = false;
+                }
+
+            }
+            return success;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+
+            //this method will be running on UI thread
+            if (result){
+                pdLoading.dismiss();
+
+                if(!onAlertList){ // TODO check if beacon UUID is NOT on the alert list && user allows interaction data to be recorded
+                    Log.i("volact", "Beginning normal beacon interaction test:" + beacon);
+                    // TODO upload interaction data to server
+                    client_name.setText("No missing person detected");
+                    //this methods stores the data
+                    new storeTrackedBeacon().execute(beacon);
+
+                } else if (onAlertList) { //TODO check if beacon UUID is on the alert list
+                    Log.i("volact", "Beginning missing beacon interaction test: " + beacon);
+                    //showNotification( "Found a beacon!", "BeaconID: " + beaconUuid);
+                    // TODO alert user to this situation
+                    DialogFragment missingAlert = new DetectedMissingBeaconDialogFragment();
+                    missingAlert.show(getFragmentManager(), "missingAlert");
+                    // TODO turn on ranging for this beacon
+                }
+
+
+                Toast.makeText(getApplicationContext(), "Loaded page!", Toast.LENGTH_SHORT).show();
+
+
+
+
+            } else {
+                Toast.makeText(getBaseContext(), err, Toast.LENGTH_LONG).show();
+            }
+
+            pdLoading.dismiss();
+
+        }
+
+    }
+
 
     private void findCenter() {
         int top = 0;
