@@ -92,7 +92,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     private String noAlert = "No missing people nearby";
     private Button contact, callBtn;
     private Context mContext;
-    private Activity mActivity;
+    private Activity mActivity = this;
     private Circle circle;
     private String caretaker, name, contact_number,details, beacon_id;
     private String err;
@@ -513,9 +513,9 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                         Log.i("missingBeacon", "id: " + b.getProximityUUID() + " dist: " + b.getMeasuredPower());
                         String uuid= b.getProximityUUID().toString();
 
-                        if (uuid.equals("b9407f30-f5f8-466e-aff9-25556b57fe6d")){
+                        if (uuid.equals("0B84C8CB-501A-453C-85BE-611E9073F201")){
                             detectedBID = "797402778773489664";
-                        } else if (uuid.equals("d4eec43ddb17403ebde7e33cba8f0a0d")){
+                        } else if (uuid.equals("04E46660-6B1D-4072-A074-94C2710749DA")){
                             detectedBID = "797421778773489664";
                         }
 
@@ -1127,7 +1127,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                     //showNotification( "Found a beacon!", "BeaconID: " + beaconUuid);
                     // TODO alert user to this situation
                     DialogFragment missingAlert = new DetectedMissingBeaconDialogFragment();
-                    missingAlert.show(getFragmentManager(), "missingAlert");
+                    missingAlert.show(ViewVolunteerActivity.this.getFragmentManager(), "missingAlert");
                     // TODO turn on ranging for this beacon
                 }
 
