@@ -96,7 +96,8 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
     private Circle circle;
     private String caretaker, name, contact_number,details, beacon_id;
     private String err;
-    private int missing, unix_time;
+    private String missing;
+    private int unix_time;
     private boolean nearMissingPerson = false;
     private View view;
     private String detectedBID;
@@ -224,17 +225,24 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
             public void onEnteredRegion(Region region, List<Beacon> beacons) {
 
                 for(Beacon beacon : beacons){
+                    Log.i("volact","beacons size is : " + beacons.size());
                     Log.i("volact","Siao liao. Got beacon liao");
-                    String beaconUuid = "" + beacon.getProximityUUID(); // TODO get missing person name from DB?
+                    String beaconUuid = "" + beacon.getMajor(); // TODO get missing person name from DB?
                     // assume that all beacons now are on the alert list
 
-                    if (uuid.equals("0B84C8CB-501A-453C-85BE-611E9073F201")){
+                    Log.i("volact", "BEACON UUID MAJOR IS NOW : " + beaconUuid);
+                    Log.i("volact", "BEACON UUID IS NOW : " + beacon.getProximityUUID().toString());
+                    Log.i("volact", "BEACON UUID IS NOW : 64863" + beaconUuid.equals("64863"));
+                    Log.i("volact", "BEACON UUID IS NOW : 37170" + beaconUuid.equals("37170"));
+
+                    if (beaconUuid.equals("64863")){
                         detectedBID = "797402778773489664";
                         new getInformationFromBeacon().execute(detectedBID);
-                    } else if (uuid.equals("04E46660-6B1D-4072-A074-94C2710749DA")){
+                    } else if (beaconUuid.equals("37170")){
                         detectedBID = "797421778773489664";
                         new getInformationFromBeacon().execute(detectedBID);
                     } else {
+                        Log.i("volact", "BEACONS ARE DETECTED AS NOT ON ALERT LIST");
                         onAlertList = false;
                     }
                 }
@@ -567,7 +575,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                     new storeTrackedBeacon().execute(detectedBID);
 
                     if (counter[0] <1){
-                        new getLatestBeaconLocationList().execute();
+                        new getLatestBeaconLocationList().execute(detectedBID);
                     }
                     counter[0]++;
 
@@ -762,7 +770,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                 try {
                     jsonObject = new JSONObject(rst);
 
-                    missing = jsonObject.getInt("missing");
+                    missing = jsonObject.getString("missing");
                     caretaker = jsonObject.getString("caretaker");
                     name = jsonObject.getString("name");
                     contact_number = jsonObject.getString("contact_number");
@@ -773,7 +781,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                     Log.d("testing", "or here first ???");
                     Log.d("testing", "or here first ??? details is : " + details);
 
-                    if (missing > -1){
+                    if (!missing.equals("-1")){
                         onAlertList = true;
                     } else {
                         onAlertList = false;
@@ -1076,7 +1084,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                 try {
                     jsonObject = new JSONObject(rst);
 
-                    missing = jsonObject.getInt("missing");
+                    missing = jsonObject.getString("missing");
                     caretaker = jsonObject.getString("caretaker");
                     name = jsonObject.getString("name");
                     contact_number = jsonObject.getString("contact_number");
@@ -1086,8 +1094,9 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
 
                     Log.d("testing", "or here first ???");
                     Log.d("testing", "or here first ??? details is : " + details);
+                    Log.d("testing", "or here first ??? missing is : " + missing.equals("-1"));
 
-                    if (missing > -1){
+                    if (!missing.equals("-1")){
                         onAlertList = true;
 
                     } else {
@@ -1110,7 +1119,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
         @Override
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
-
+            Log.d("testing", "or here first ??? missing on post execute is : " + missing);
             //this method will be running on UI thread
             if (result){
                 //pdLoading.dismiss();
@@ -1120,7 +1129,7 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                     // TODO upload interaction data to server
                     client_name.setText("No missing person detected");
                     //this methods stores the data
-                    new storeTrackedBeacon().execute(beacon);
+                    //new storeTrackedBeacon().execute(beacon);
 
                 } else if (onAlertList) { //TODO check if beacon UUID is on the alert list
                     Log.i("volact", "Beginning missing beacon interaction test: " + beacon);
