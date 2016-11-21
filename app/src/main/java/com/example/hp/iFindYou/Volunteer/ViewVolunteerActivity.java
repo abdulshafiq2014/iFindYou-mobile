@@ -228,11 +228,11 @@ public class ViewVolunteerActivity extends FragmentActivity implements OnMapRead
                     String beaconUuid = "" + beacon.getProximityUUID(); // TODO get missing person name from DB?
                     // assume that all beacons now are on the alert list
 
-                    if (beaconUuid.equals("b9407f30-f5f8-466e-aff9-25556b57fe6d")){
+                    if (uuid.equals("0B84C8CB-501A-453C-85BE-611E9073F201")){
                         detectedBID = "797402778773489664";
                         new getInformationFromBeacon().execute(detectedBID);
-                    } else if (uuid.equals("d4eec43ddb17403ebde7e33cba8f0a0d")){
-                        beaconUuid = "797421778773489664";
+                    } else if (uuid.equals("04E46660-6B1D-4072-A074-94C2710749DA")){
+                        detectedBID = "797421778773489664";
                         new getInformationFromBeacon().execute(detectedBID);
                     } else {
                         onAlertList = false;
